@@ -14,6 +14,7 @@
 		079729BC1DD8AA5E009CB125 /* disk.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 079729B51DD8AA5E009CB125 /* disk.o */; };
 		079729BD1DD8AA5E009CB125 /* debug.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 079729B61DD8AA5E009CB125 /* debug.o */; };
 		079729BE1DD8AA5E009CB125 /* console.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 079729B71DD8AA5E009CB125 /* console.o */; };
+		07DC38261DDDF24A003B6AB2 /* interrupts.c in Sources */ = {isa = PBXBuildFile; fileRef = 07DC38241DDDF24A003B6AB2 /* interrupts.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +41,8 @@
 		079729B51DD8AA5E009CB125 /* disk.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = disk.o; sourceTree = "<group>"; };
 		079729B61DD8AA5E009CB125 /* debug.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = debug.o; sourceTree = "<group>"; };
 		079729B71DD8AA5E009CB125 /* console.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = console.o; sourceTree = "<group>"; };
+		07DC38241DDDF24A003B6AB2 /* interrupts.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = interrupts.c; sourceTree = "<group>"; };
+		07DC38251DDDF24A003B6AB2 /* interrupts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interrupts.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +65,8 @@
 		079729891DD8A5F6009CB125 = {
 			isa = PBXGroup;
 			children = (
+				07DC38241DDDF24A003B6AB2 /* interrupts.c */,
+				07DC38251DDDF24A003B6AB2 /* interrupts.h */,
 				079729AF1DD8AA5E009CB125 /* usercode.o */,
 				079729B01DD8AA5E009CB125 /* mem.o */,
 				079729B11DD8AA5E009CB125 /* kernel.h */,
@@ -150,6 +155,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				079729BA1DD8AA5E009CB125 /* kernel.c in Sources */,
+				07DC38261DDDF24A003B6AB2 /* interrupts.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

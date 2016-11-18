@@ -12,9 +12,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "interrupts.h"
 #include "hardware_interface.h"
 
 void kernel_start();
+extern int jiffies;
+//extern void ClockInterrupt(int input);
+
 
 #endif /* kernel_h */

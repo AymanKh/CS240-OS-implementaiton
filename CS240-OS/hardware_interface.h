@@ -10,7 +10,7 @@
 #define hardware_interface_h
 
 /* Memory interface */
-#define PAGE_SIZE           4196                // Page is 4KB
+#define PAGE_SIZE           4096                // Page is 4KB
 #define KERNEL_MEM_LIMIT    (1 << 20)           // Kernel code and libraries loads in first megabyte of memory, don't overwrite!!!
 extern void set_ptbr(void * physical_addr);     // Sets the Page Table Base Register to the root of the page table
 extern int  get_memory_size(void);              // Returns the amount of physical memory available
@@ -96,7 +96,7 @@ extern void shutdown_machine(); // Tell the hardware to shutdown
 extern void set_debug_mode(unsigned flag);
 extern void reset_debug_mode();
 
-/* Trao Definitions */
+/* Trap Definitions */
 #define TRAP_CREATE_PROCESS             0x00
 #define TRAP_EXIT                       0x01
 #define TRAP_DESTROY_PROCESS            0x02
