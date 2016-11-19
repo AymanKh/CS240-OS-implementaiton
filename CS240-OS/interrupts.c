@@ -21,8 +21,6 @@ void ClockInterruptHandler(int input)
     halt();
 }
 
-int clockRunning = 0;
-int jiffies = 0;
 void DiskInterruptHandler(){
  
 }
@@ -60,6 +58,7 @@ void SetAllHandlers(){
     //These two lines define the console interrupt handler
     void (*consoleInterruptPointer)(int) = &ConsoleInterruptHandler;
     set_ivec(I_CNSL, consoleInterruptPointer);
+    
     //These two lines define the trap interrupt handler
     void (*trapInterruptPointer)(int) = &TrapInterruptHandler;
     set_ivec(I_TRAP, trapInterruptPointer);
@@ -74,4 +73,12 @@ void SetAllHandlers(){
     
     char *s = "Progress: Set All Handlers Successfully!\n";
     write_console((unsigned)strlen(s),s);
+}
+
+// Console interrupt
+
+void ConsoleInterrupt(int input)
+{
+    char *s = "Interrupt: Console Interrupt!\n";
+    write_console((unsigned) strlen(s), s);
 }
