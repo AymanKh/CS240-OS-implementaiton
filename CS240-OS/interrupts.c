@@ -12,66 +12,28 @@
 #include "interrupts.h"
 #include "hardware_interface.h"
 
-void ClockInterruptHandler(int input)
+
+int clockRunning = 0;
+int jiffies = 0;
+
+
+// Clock Interrupt
+
+void ClockInterrupt(int input)
 {
     char *s = "Interrupt: Clock Interrupt!\n";
     write_console((unsigned)strlen(s),s);
     
-    //TODO: This could be halt() or iter(). Need to be modified later
-    halt();
-}
-
-int clockRunning = 0;
-int jiffies = 0;
-void DiskInterruptHandler(){
- 
-}
-
-void ConsoleInterruptHandler(){
+    if(!clockRunning)
+    {
+        clockRunning = 1;
+    }
+    else
+    {
+        jiffies++;
+    }
     
-}
-
-void TrapInterruptHandler(){
+    //    iret();
+    //    currTime++;
     
-}
-
-void ExceptionInterruptHandler(){
-    
-}
-
-void CheckInterruptHandler(){
-    
-}
-
-
-/*
- * This method will define all the handler methods
- */
-
-void SetAllHandlers(){
-    //These two lines define the clock interrupt handler
-    void (*clockInterruptPointer)(int) = &ClockInterruptHandler;
-    set_ivec(I_CLK, clockInterruptPointer);
-    
-    //These two lines define the disk interrupt handler
-    void (*diskInterruptPointer)(int) = &DiskInterruptHandler;
-    set_ivec(I_DSK, diskInterruptPointer);
-    
-    //These two lines define the console interrupt handler
-    void (*consoleInterruptPointer)(int) = &ConsoleInterruptHandler;
-    set_ivec(I_CNSL, consoleInterruptPointer);
-    //These two lines define the trap interrupt handler
-    void (*trapInterruptPointer)(int) = &TrapInterruptHandler;
-    set_ivec(I_TRAP, trapInterruptPointer);
-    
-    //These two lines define the exception interrupt handler
-    void (*exceptionInterruptPointer)(int) = &ExceptionInterruptHandler;
-    set_ivec(I_EXCEPT, exceptionInterruptPointer);
-    
-    //These two lines define the check interrupt handler
-    void (*checkInterruptPointer)(int) = &CheckInterruptHandler;
-    set_ivec(I_CHECK, checkInterruptPointer);
-    
-    char *s = "Progress: Set All Handlers Successfully!\n";
-    write_console((unsigned)strlen(s),s);
 }
