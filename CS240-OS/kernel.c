@@ -24,7 +24,6 @@ void kernel_start()
     
     // set the vector table
 <<<<<<< HEAD
-<<<<<<< HEAD
     set_ivec(I_CLK, ClockInterruptHandler);
     
     char s[20];
@@ -46,12 +45,6 @@ void kernel_start()
     
     
     shutdown_machine();
-=======
-    SetAllHandlers();
-    
-    halt(); //This halt is just to test the clock interrupt handler
-    //shutdown_machine();
->>>>>>> origin/Ayman
 =======
     SetAllHandlers();
     

@@ -38,7 +38,6 @@ void ExceptionInterruptHandler(){
 }
 
 void CheckInterruptHandler(){
-<<<<<<< HEAD
     
 }
 
@@ -60,29 +59,6 @@ void SetAllHandlers(){
     void (*consoleInterruptPointer)(int) = &ConsoleInterruptHandler;
     set_ivec(I_CNSL, consoleInterruptPointer);
     
-=======
-    
-}
-
-
-/*
- * This method will define all the handler methods
- */
-
-void SetAllHandlers(){
-    //These two lines define the clock interrupt handler
-    void (*clockInterruptPointer)(int) = &ClockInterruptHandler;
-    set_ivec(I_CLK, clockInterruptPointer);
-    
-    //These two lines define the disk interrupt handler
-    void (*diskInterruptPointer)(int) = &DiskInterruptHandler;
-    set_ivec(I_DSK, diskInterruptPointer);
-    
-    //These two lines define the console interrupt handler
-    void (*consoleInterruptPointer)(int) = &ConsoleInterruptHandler;
-    set_ivec(I_CNSL, consoleInterruptPointer);
-    
->>>>>>> origin/Ayman
     //These two lines define the trap interrupt handler
     void (*trapInterruptPointer)(int) = &TrapInterruptHandler;
     set_ivec(I_TRAP, trapInterruptPointer);
@@ -97,7 +73,6 @@ void SetAllHandlers(){
     
     char *s = "Progress: Set All Handlers Successfully!\n";
     write_console((unsigned)strlen(s),s);
-<<<<<<< HEAD
 }
 
 // Console interrupt
@@ -106,6 +81,4 @@ void ConsoleInterrupt(int input)
 {
     char *s = "Interrupt: Console Interrupt!\n";
     write_console((unsigned) strlen(s), s);
-=======
->>>>>>> origin/Ayman
 }
