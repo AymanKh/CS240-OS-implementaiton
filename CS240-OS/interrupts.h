@@ -11,7 +11,12 @@
 
 #include <stdio.h>
 
-
-void ClockInterrupt();
+void ClockInterruptHandler();
+void DiskInterruptHandler();
+void ConsoleInterruptHandler();
+void TrapInterruptHandler();
+void ExceptionInterruptHandler();
+void CheckInterruptHandler();
+void SetAllHandlers();
 
 #endif /* interrupts_h */
