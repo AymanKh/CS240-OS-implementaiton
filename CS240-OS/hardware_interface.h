@@ -39,6 +39,7 @@ typedef union {
 #define MEMORY_WRITE        1               // Access type, passed if there is an exception in memory access
 
 /* Disk interface */
+#define BLOCK_SIZE  8                       // TODO : this number define minimum number required for reading and writing blocks
 typedef int t_id;
 #define SECTOR_SIZE 512
 #define MAX_SECTORS_PER_OP  32

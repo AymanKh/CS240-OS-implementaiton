@@ -16,8 +16,7 @@
 #include "hardware_interface.h"
 
 void kernel_start();
-extern int jiffies;
-//extern void ClockInterrupt(int input);
+void test_functions();
 
 
 #endif /* kernel_h */

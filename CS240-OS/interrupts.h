@@ -13,7 +13,7 @@
 
 void ClockInterruptHandler();
 void DiskInterruptHandler();
-void ConsoleInterruptHandler();
+void ConsoleInterruptHandler(char charFromConsole);
 void TrapInterruptHandler();
 void ExceptionInterruptHandler();
 void CheckInterruptHandler();
