@@ -14,9 +14,16 @@
 #include <string.h>
 #include "interrupts.h"
 #include "hardware_interface.h"
+#include "console_interface.h"
+//#include "BitMap.h"
+
+
+
 
 void kernel_start();
 extern int jiffies;
+//extern char *consoleInput[100];
+//extern int nbytes;
 //extern void ClockInterrupt(int input);
 
 

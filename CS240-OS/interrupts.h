@@ -10,8 +10,23 @@
 #define interrupts_h
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "hardware_interface.h"
+#include "console_interface.h"
+//#include "BitMap.h"
+
+struct Temp {
+    char array[512];
+};
 
 
-void ClockInterrupt();
+void ClockInterrupt(int input);
+void ConsoleInterrupt(int input);
+void DiskInterrupt(int input);
+void MachineCheckInterrupt(int input);
+
+extern int nbytes;
+//extern char consoleInput[100];
 
 #endif /* interrupts_h */

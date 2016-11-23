@@ -15,7 +15,7 @@
 extern void set_ptbr(void * physical_addr);     // Sets the Page Table Base Register to the root of the page table
 extern int  get_memory_size(void);              // Returns the amount of physical memory available
 extern void initialize_memory(void);            // Starts the memory intialization, set on virtual memory
-extern void * map_physical_page(void * physical_addr);          // Map a physical page starting at physical_addr into kernel
+extern void * map_physical_page(void * physical_addr);          // Map a physical page starting at physical_addr into kernel, return a virtual address
 extern void * map_page_table_node(void * physical_addr);        // This is just a call to map_physical_page where the actual
                                                               // mapping takes place
 typedef union {
