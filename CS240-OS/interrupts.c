@@ -76,13 +76,13 @@ void DiskInterrupt(int input)
 {
     if (input == 0)
     {
-        struct Temp *temp;
-        void *addr = (void *)(1<<20);
-        temp = (struct Temp *)map_physical_page(addr);
-        read_disk(0, 1, addr);
-        char b[512];
-        sprintf(b, "%c", temp->array[1]);
-        write_console((unsigned) strlen(b), b);
+//        struct Temp *temp;
+//        void *addr = (void *)(1<<20);
+//        temp = (struct Temp *)map_physical_page(addr);
+//        read_disk(0, 1, addr);
+//        char b[512];
+//        sprintf(b, "%c", temp->array[1]);
+//        write_console((unsigned) strlen(b), b);
     }
     
     char s[50];

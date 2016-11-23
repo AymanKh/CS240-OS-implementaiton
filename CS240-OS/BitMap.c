@@ -9,32 +9,45 @@
 #include "BitMap.h"
 
 
-void SetBits(int position)
+void SetBits(int position,int dest)
 {
     /* 1. set bit at 'position' to one */
+    unsigned long long int *sectorGroup;
     
     int arrayPos = position / 64;
     unsigned long long int bitPos = position % 64;
     
-    unsigned long long int *sectorGroup = &BitMap[arrayPos];
-    unsigned long long int value = BitMap[arrayPos];
+    if (dest == Memory)
+    {
+        sectorGroup = &BitMapMemory[arrayPos];
+    }
+    else if (dest == Disk)
+    {
+        sectorGroup = &BitMapDisk[arrayPos];
+    }
     
-    // set bitPos to '1'
-    //*sectorGroup ^= ((unsigned long long int)-1 ^ *sectorGroup) & (1 << bitPos);
-    
+    // set bitPos to '1'    
     unsigned long long int mask = ((unsigned long long int)1 << bitPos);
     *sectorGroup ^= mask;
 }
 
-void ClearBits(int position)
+void ClearBits(int position,int dest)
 {
     /* set bit at 'positon' to zero */
     
+    unsigned long long int *sectorGroup;
+    
     int arrayPos = position / 64;
-    int bitPos = position % 64;
+    unsigned long long int bitPos = position % 64;
     
-    unsigned long long int *sectorGroup = &BitMap[arrayPos];
-    
+    if (dest == Memory)
+    {
+        sectorGroup = &BitMapMemory[arrayPos];
+    }
+    else if (dest == Disk)
+    {
+        sectorGroup = &BitMapDisk[arrayPos];
+    }
     // set bitPos to '0'
     *sectorGroup ^= ((unsigned long long int)0 ^ *sectorGroup) & ((unsigned long long int)1 << bitPos);
     
@@ -42,13 +55,22 @@ void ClearBits(int position)
 
 // Assumption: we read bits starting from the LSB, but we allocate array starting at index 0
 
-int GetBit(int position)
+int GetBit(int position,int dest)
 {
     /* get the value in 'positon'*/
-    int arrayPos = position / 64;
-    int bitPos = position % 64;
+    unsigned long long int *sectorGroup;
     
-    unsigned long long int *sectorGroup = &BitMap[arrayPos];
+    int arrayPos = position / 64;
+    unsigned long long int bitPos = position % 64;
+    
+    if (dest == Memory)
+    {
+        sectorGroup = &BitMapMemory[arrayPos];
+    }
+    else if (dest == Disk)
+    {
+        sectorGroup = &BitMapDisk[arrayPos];
+    }
     
     // This is a mask with the desired bit set to '1'
     unsigned long long int mask = 1 ;
@@ -63,8 +85,23 @@ int GetBit(int position)
 }
 
 
-int SearchForAvailableBit()
+int SearchForAvailableBit(int dest)
 {
+    int limit;
+    
+    if (dest == Memory)
+    {
+        limit = 128;
+    }
+    else if (dest == Disk)
+    {
+        limit = 2048;
+    }
+    else
+    {
+        return -1;
+    }
+    
     /* find the position of the first '1' bit*/
     
     unsigned long long int sectorGroup = 77;
@@ -73,9 +110,9 @@ int SearchForAvailableBit()
     int exitFlag = 0;
     int i = 0;
     
-    while (i < 512)
+    while (i < limit)
     {
-        sectorGroup = ~BitMap[i];
+        sectorGroup = ~BitMapDisk[i];
         
         
         t = 1;
@@ -104,7 +141,7 @@ int SearchForAvailableBit()
         
     }
     
-    if (i == 512)
+    if (i == limit)
     {
         // disk is full
         return -1;
@@ -116,9 +153,24 @@ int SearchForAvailableBit()
     
 }
 
+int translateBitPositionToBlockNumberInDisk(int position)
+{
+    // Multiply by 8 since each blocks spans 8 sectors
+    return position * 8;
+}
+
+
+void* translateBitPositionToPageNumberInMemory(int position)
+{
+    // since each bit position corresopnds to a 4KB page in memory
+    void *addr = (void *) ((long int)position * 4096);
+    return addr;
+}
+
 
 // TODO: LATER
 void initilizeBitMap(FILE* log)
 {
     
 }
+

@@ -11,19 +11,25 @@
 
 #include <stdio.h>
 
+#define MAX_LLU 18446744073709551615LLU
+#define Reserved_for_OS 256 // number of blocks in main memory reserved for kernel
+
 //#include "hardware_interface.h"
 
+//typedef enum _storage {Memory, Disk} storage;
+int Memory = 0;
+int Disk = 1;
 
-unsigned long long int BitMap[512] = {0};
-void SetBits(int position); // set a bit to one
+unsigned long long int BitMapDisk[2048] = {0};
+unsigned long long int BitMapMemory[128] = {MAX_LLU, MAX_LLU, MAX_LLU, MAX_LLU}; // The first four entries are busy, they are mapped to kernel, rest is 0
 
-void ClearBits(); // clear a bit (or multiple) upon deletion of a persistent object
-int GetBit(int position); // find if a certain position is one or zero
-
-int SearchForAvailableBit();
-
+void SetBits(int position,int dest); // set a bit to one
+void ClearBits(int position,int dest); // clear a bit (or multiple) upon deletion of a persistent object
+int GetBit(int position,int dest); // find if a certain position is one or zero
+int SearchForAvailableBit(int dest);
 void initilizeBitMap(FILE* log); // assign values to bitMap from stored log upon powerup
-
+int translateBitPositionToBlockNumberInDisk(int position);
+void* translateBitPositionToPageNumberInMemory(int position);
 
 
 #endif /* BitMap_h */

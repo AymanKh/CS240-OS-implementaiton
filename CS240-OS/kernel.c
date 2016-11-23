@@ -14,7 +14,7 @@ void kernel_start()
 //    set_debug_mode(DEBUG_ALL);
     reset_debug_mode();
     start_console();
-    initialize_memory();
+    initialize_memory(); // Keep track of available pages in main memory
     start_disk();
     
     
@@ -41,39 +41,23 @@ void kernel_start()
     DeletePersistentObject("Monkey Name");
     
     
-//    
-//    char *addr = (char *) (1<<20);
-//    struct Temp *temp;
-//    temp = (struct Temp *)map_physical_page(addr);
-//    temp->array[0] = 'c';
-//    temp->array[1] = 'b';
-//    temp->array[2] = '\0';
-//    write_disk(0, 1, addr);
     
-//    void *addr2 = (void *) (1<<21);
+    void *addr = (void *) 1048576;
+    struct Temp *temp;
+    temp = (struct Temp *)map_physical_page(addr);
+    temp->array[0] = '1';
+    temp->array[1] = '2';
+    temp->array[2] = '\0';
+    write_disk(0, 1, addr);
+    
 //    struct Temp *temp2;
+//    void *addr2 = (void *)(1<<20);
 //    temp2 = (struct Temp *)map_physical_page(addr2);
-//    temp2->array[0] = 'c';
-//    temp2->array[1] = 'b';
-//    temp2->array[2] = '\0';
-//    write_disk(0, 1, addr2);
-//    
-//    void *addr3 = (void *) (1<<22);
-//    struct Temp *temp3;
-//    temp3 = (struct Temp *)map_physical_page(addr3);
-//    temp3->array[0] = 'c';
-//    temp3->array[1] = 'b';
-//    temp3->array[2] = '\0';
-//    write_disk(0, 1, addr3);
-    
-    
-//    char *s = malloc(5);
-//    sprintf(a, "s = %p",s);
-//    write_console((unsigned) strlen(a), a);
-    
-  
-    
-    
+//    read_disk(0, 1, addr2);
+//    char b[30];
+//    sprintf(b, "kernel: read from disk: %c\n", temp2->array[1]);
+//    write_console((unsigned) strlen(b), b);
+
     halt();
 //    shutdown_machine();
 }
@@ -93,6 +77,26 @@ void kernel_start()
 
 
 
+//    void *addr2 = (void *) (1<<21);
+//    struct Temp *temp2;
+//    temp2 = (struct Temp *)map_physical_page(addr2);
+//    temp2->array[0] = 'c';
+//    temp2->array[1] = 'b';
+//    temp2->array[2] = '\0';
+//    write_disk(0, 1, addr2);
+//
+//    void *addr3 = (void *) (1<<22);
+//    struct Temp *temp3;
+//    temp3 = (struct Temp *)map_physical_page(addr3);
+//    temp3->array[0] = 'c';
+//    temp3->array[1] = 'b';
+//    temp3->array[2] = '\0';
+//    write_disk(0, 1, addr3);
+
+
+//    char *s = malloc(5);
+//    sprintf(a, "s = %p",s);
+//    write_console((unsigned) strlen(a), a);
 
 
 // print characters to screen, just to see if clock interrupt will actually interrupt the kernel (it should!)
