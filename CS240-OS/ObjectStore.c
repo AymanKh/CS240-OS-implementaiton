@@ -11,7 +11,7 @@
 
 int CreatePersistentObject(char *keyname)
 {
-    /* 
+    /*
      1. hash the keyname
      2. the value of the key should be a number, this number represent the location in BitMap, which can then
      be translated to an actual block
@@ -21,11 +21,9 @@ int CreatePersistentObject(char *keyname)
     keynameHash *hashit = malloc(sizeof(keynameHash));
     hashit->keynameH = (void *) keyname;
     hashit->size = 0;
+    hashit->blocksHead = NULL;
     
-    char b[30];
-    sprintf(b, "read from disk: %d\n", Disk);
-    write_console((unsigned) strlen(b), b);
-
+    
     /*
      1. find the value, from bitMap
      2. Connect them using the hash table
@@ -37,12 +35,15 @@ int CreatePersistentObject(char *keyname)
     
     // Assumption: each key MUST be mapped to at least one block
     
-    hashit->blockPosition = SearchForAvailableBit(Disk);
-    SetBits(hashit->blockPosition);
+    blockNode *blockNodeToAdd = malloc(sizeof(blockNode));
+    blockNodeToAdd->blockPosition = SearchForAvailableBit();
+    LL_APPEND(hashit->blocksHead, blockNodeToAdd);
+    
+    SetBits(blockNodeToAdd->blockPosition,Disk);
     
     HASH_ADD_PTR(hashTable, keynameH, hashit);
     
-//    write_console(30, "Done CPO\n");
+    free(hashit);
     
     return 0;
 }
@@ -52,9 +53,9 @@ int GetPersistentObjectSize(char * keyname)
     keynameHash *getHash;
     HASH_FIND_PTR(hashTable,&keyname, getHash);
     
-    char s[100];
-    sprintf(s,"getHash->size == %d\n", getHash->size);
-    write_console(20,s);
+    //    char s[100];
+    //    sprintf(s,"getHash->size == %d\n", getHash->size);
+    //    write_console(20,s);
     
     return getHash->size;
 }
@@ -73,7 +74,12 @@ int DeletePersistentObject(char * keyname)
     keynameHash *getHash;
     HASH_FIND_PTR(hashTable,&keyname, getHash);
     
-    ClearBits(getHash->blockPosition);
+    blockNode *temp;
+    
+    LL_FOREACH(getHash->blocksHead,temp)
+    {
+        ClearBits(temp->blockPosition);
+    }
     
     HASH_DEL(hashTable, getHash);
     
@@ -89,41 +95,95 @@ void * MapPersistentObject(char * keyname, int offset, int size)
      1. if size == 0, map virtual to physical
      2. else, read from disk and map disk content to virtual, using map_physical_page
      3. Create a new hashtable, the key is the virtual address, the value is physical address
-
+     
      */
     
-    if (GetPersistentObjectSize(keyname) == 0)
+    //    if (GetPersistentObjectSize(keyname) == 0)
+    //    {
+    /*
+     1. find the first available bit in memory
+     2. translate the position of the bit, to an actual physical address
+     3. Hash as described below
+     4. This address will be mapped using map_physical_page
+     */
+    // TODO: get the first free bit in main memory
+    
+    int requestedBlocksInMemory = size/PAGE_SIZE + 1;
+    int blocksToSkip = offset/(BLOCK_SIZE * SECTOR_SIZE);
+    
+    int memLocation = 0;
+    void *addr = NULL;
+    int blockPhysicalAddr = 0;
+    
+    
+    keynameHash *getHash;
+    HASH_FIND_PTR(hashTable,&keyname, getHash);
+    
+    blockNode *temp;
+    
+    int i = 0;
+    
+    // find the first block to read taking into consideration the offset
+    LL_FOREACH(getHash->blocksHead, temp)
     {
-        /*
-         1. find the first available bit in memory
-         2. translate the position of the bit, to an actual physical address
-         3. Hash as described below
-         4. This address will be mapped using map_physical_page
-         */
-        // TODO: get the first free bit in main memory
-        int memLocation = SearchForAvailableBit(Memory);
-        SetBits(memLocation,Memory);
-        void *addr = translateBitPositionToPageNumberInMemory(memLocation);
-        
-        keynameHash *getHash;
-        HASH_FIND_PTR(hashTable,&keyname, getHash);
-        int blockPhysicalAddr = translateBitPositionToBlockNumberInDisk(getHash->blockPosition);
-
-        
-        addressHash *hashit = malloc(sizeof(addressHash));
-        hashit->keyVirtualAddr = map_physical_page(addr);
-        hashit->physicalInMemory = addr;
-        hashit->physicalInDisk = blockPhysicalAddr;
-        hashit->size = size;
-
-        
-        HASH_ADD_PTR(hashTableAddresses, keyVirtualAddr, hashit);
-
-        
-        
-        return map_physical_page(addr);
-        
+        if (blocksToSkip == i)
+        {
+            break;
+        }
+        i++;
     }
+    
+    int returnAddressFlag = 1;
+    void * returnVirtualAddress = NULL;
+    
+    // Allocate pages in memory, read pages in disk, copy pages in disk into memory
+    while(requestedBlocksInMemory > 0)
+    {
+        memLocation = SearchForAvailableBit(Memory);
+        SetBits(memLocation,Memory);
+        addr = translateBitPositionToPageNumberInMemory(memLocation);
+        
+        if (returnAddressFlag)
+        {
+            returnVirtualAddress = map_physical_page(addr);
+            returnAddressFlag = 0;
+        }
+        else
+        {
+            map_physical_page(addr);
+        }
+        
+        blockPhysicalAddr = translateBitPositionToBlockNumberInDisk(temp->blockPosition);
+        read_disk(blockPhysicalAddr, BLOCK_SIZE, addr);
+        
+        requestedBlocksInMemory--;
+        temp = temp->next;
+        
+        // break and continue allocating new pages in Disk in the next loop
+        if (temp == NULL)
+        {
+            break;
+        }
+    }
+    //        int memLocation = SearchForAvailableBit(Memory);
+    //        SetBits(memLocation,Memory);
+    //        void *addr = translateBitPositionToPageNumberInMemory(memLocation);
+    //
+    
+    
+    
+    addressHash *hashit = malloc(sizeof(addressHash));
+//    hashit->keyVirtualAddr = map_physical_page(addr);
+    hashit->keyVirtualAddr = returnVirtualAddress;
+    hashit->physicalInMemory = addr;
+    hashit->physicalInDisk = blockPhysicalAddr;
+    hashit->size = size;
+    
+    HASH_ADD_PTR(hashTableAddresses, keyVirtualAddr, hashit);
+    
+    return returnVirtualAddress;
+    
+    //    }
     
     /*
      1. use key to get block position from the hashtable
@@ -135,30 +195,30 @@ void * MapPersistentObject(char * keyname, int offset, int size)
      */
     
     // 1.
-    keynameHash *getHash;
-    HASH_FIND_PTR(hashTable,&keyname, getHash);
-    
-    // 2. 3.
-    int blockPhysicalAddr = translateBitPositionToBlockNumberInDisk(getHash->blockPosition);
-    int memLocation = SearchForAvailableBit(Memory);
-    SetBits(memLocation,Memory);
-    void *addr = translateBitPositionToPageNumberInMemory(memLocation);
-    
-    // 4.
-    read_disk(blockPhysicalAddr, BLOCK_SIZE, addr);
-    
-    // 5.
-    addressHash *hashit = malloc(sizeof(addressHash));
-    hashit->keyVirtualAddr = map_physical_page(addr);
-    hashit->physicalInMemory = addr;
-    hashit->physicalInDisk = blockPhysicalAddr;
-    hashit->size = size;
-    
-    HASH_ADD_PTR(hashTableAddresses, keyVirtualAddr, hashit);
-
-    
-    // 6.
-    return map_physical_page(addr);
+    //    keynameHash *getHash;
+    //    HASH_FIND_PTR(hashTable,&keyname, getHash);
+    //
+    //    // 2. 3.
+    //    int blockPhysicalAddr = translateBitPositionToBlockNumberInDisk(getHash->blockPosition);
+    //    int memLocation = SearchForAvailableBit(Memory);
+    //    SetBits(memLocation,Memory);
+    //    void *addr = translateBitPositionToPageNumberInMemory(memLocation);
+    //
+    //    // 4.
+    //    read_disk(blockPhysicalAddr, BLOCK_SIZE, addr);
+    //
+    //    // 5.
+    //    addressHash *hashit = malloc(sizeof(addressHash));
+    //    hashit->keyVirtualAddr = map_physical_page(addr);
+    //    hashit->physicalInMemory = addr;
+    //    hashit->physicalInDisk = blockPhysicalAddr;
+    //    hashit->size = size;
+    //
+    //    HASH_ADD_PTR(hashTableAddresses, keyVirtualAddr, hashit);
+    //
+    //    free(hashit);
+    //    // 6.
+    //    return map_physical_page(addr);
     
 }
 
@@ -169,21 +229,31 @@ int UnMapPersistentObject(char * address)
      2. write back to the disk using the physical address (location in disk available in BitMap)
      3. Remove virtual address from hashtable
      4. clear bits in BitMapMemory
-     5. in someway, free the virtual space
+     5. in someway, free the virtual space --> NO NEED
      */
     
     addressHash *getHash;
     HASH_FIND_PTR(hashTable,&address, getHash);
     
     int numOfSectors = (getHash->size/SECTOR_SIZE) + 1;
-    int numOfBlocks = (numOfBlocks/BLOCK_SIZE) * 8;
+    int numOfBlocks = (numOfSectors/BLOCK_SIZE) * 8;
     
     write_disk((void *)(getHash->physicalInDisk/8), numOfBlocks , (void *)getHash->physicalInMemory);
-
     
+    ClearBits((int)getHash->physicalInMemory/4096,Memory);
+    
+    HASH_DEL(hashTableAddresses, getHash);
     
     return 0;
 }
 
 
+
+/* (4) for (all phjysical disks)
+ read_disks --> you will get four transcations ids
+ 
+ 
+ 
+ 
+ */
 

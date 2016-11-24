@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "uthash.h"
+#include "utlist.h"
 #include "hardware_interface.h"
 
 #define BLOCK_SIZE 8
@@ -29,10 +30,20 @@ int UsedPersistentStoreSpace();
 int NumOfPersistentObjects();
 char * GetPersistentObjectKey(int i);
 
+typedef struct blockNode blockNode;
+
+struct blockNode {
+    int blockPosition;
+    blockNode *next; /* needed for singly- or doubly-linked lists */
+};
+
+
+
 typedef struct _KeynameHash {
     char *keynameH;
-    int blockPosition;
     int size;
+//    blockNode blockPosition;
+    blockNode *blocksHead;
     UT_hash_handle hh;         /* makes this structure hashable */
 } keynameHash ;
 
@@ -48,6 +59,8 @@ typedef struct _addressesHash {
 } addressHash ;
 
 addressHash *hashTableAddresses = NULL;
+
+
 
 // Flags
 extern int Memory;

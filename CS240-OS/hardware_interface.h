@@ -15,7 +15,7 @@
 extern void set_ptbr(void * physical_addr);     // Sets the Page Table Base Register to the root of the page table
 extern int  get_memory_size(void);              // Returns the amount of physical memory available
 extern void initialize_memory(void);            // Starts the memory intialization, set on virtual memory
-extern void * map_physical_page(void * physical_addr);          // Map a physical page starting at physical_addr into kernel, return a virtual address
+extern void * map_physical_page(void * physical_addr);          // Map a physical page starting at physical_addr into kernel
 extern void * map_page_table_node(void * physical_addr);        // This is just a call to map_physical_page where the actual
                                                               // mapping takes place
 typedef union {
@@ -32,8 +32,6 @@ typedef union {
     }pte;
     int pte_;
 }pte;
-
-// test version control v2
 
 #define MEMORY_READ         0               // Access type, passed if there is an exception in memory access
 #define MEMORY_WRITE        1               // Access type, passed if there is an exception in memory access
@@ -96,7 +94,7 @@ extern void shutdown_machine(); // Tell the hardware to shutdown
 extern void set_debug_mode(unsigned flag);
 extern void reset_debug_mode();
 
-/* Trap Definitions */
+/* Trao Definitions */
 #define TRAP_CREATE_PROCESS             0x00
 #define TRAP_EXIT                       0x01
 #define TRAP_DESTROY_PROCESS            0x02
@@ -190,6 +188,15 @@ typedef struct {
 
 extern exception_context e_context;
 
+/* User program interface */
+typedef struct {
+    unsigned code;
+    unsigned code_segment_size;
+    unsigned code_segment_start;
+    unsigned data_segment_size;
+    unsigned data_segment_start;
+    unsigned stack_segment_start;
+}header;
 
 
 #endif /* hardware_interface_h */

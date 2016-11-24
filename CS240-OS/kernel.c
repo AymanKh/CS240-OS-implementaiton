@@ -42,21 +42,21 @@ void kernel_start()
     
     
     
-    void *addr = (void *) 1048576;
-    struct Temp *temp;
-    temp = (struct Temp *)map_physical_page(addr);
-    temp->array[0] = '1';
-    temp->array[1] = '2';
-    temp->array[2] = '\0';
-    write_disk(0, 1, addr);
+//    void *addr = (void *) 1048576;
+//    struct Temp *temp;
+//    temp = (struct Temp *)map_physical_page(addr);
+//    temp->array[0] = 'x';
+//    temp->array[1] = 'y';
+//    temp->array[2] = '\0';
+//    write_disk(0, 1, addr);
     
-//    struct Temp *temp2;
-//    void *addr2 = (void *)(1<<20);
-//    temp2 = (struct Temp *)map_physical_page(addr2);
-//    read_disk(0, 1, addr2);
-//    char b[30];
-//    sprintf(b, "kernel: read from disk: %c\n", temp2->array[1]);
-//    write_console((unsigned) strlen(b), b);
+    struct Temp *temp2;
+    void *addr2 = (void *)(1<<20);
+    temp2 = (struct Temp *)map_physical_page(addr2);
+    read_disk(0, 1, addr2);
+    char b[30];
+    sprintf(b, "kernel: read from disk: %c\n", temp2->array[1]);
+    write_console((unsigned) strlen(b), b);
 
     halt();
 //    shutdown_machine();
