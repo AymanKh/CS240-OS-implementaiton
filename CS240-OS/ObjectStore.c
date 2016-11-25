@@ -22,24 +22,24 @@ int CreatePersistentObject(char *keyname)
     hashit->keynameH = (void *) keyname;
     hashit->size = 0;
     hashit->blocksHead = NULL;
+    hashit->mappedFlag = 0;
     
     
     /*
      1. find the value, from bitMap
      2. Connect them using the hash table
      
-     TODO: if more than one block needed, then loop through this
-     TODO: Error Checking
-     TODO: use fseek to find size of file, and allocate the propahh number of sectors*/
+     TODO: Error Checking */
     
     
     // Assumption: each key MUST be mapped to at least one block
     
     blockNode *blockNodeToAdd = malloc(sizeof(blockNode));
-    blockNodeToAdd->blockPosition = SearchForAvailableBit();
+    blockNodeToAdd->blockPosition = SearchForAvailableBit(Disk);
     LL_APPEND(hashit->blocksHead, blockNodeToAdd);
     
     SetBits(blockNodeToAdd->blockPosition,Disk);
+    
     
     HASH_ADD_PTR(hashTable, keynameH, hashit);
     
@@ -52,10 +52,6 @@ int GetPersistentObjectSize(char * keyname)
 {
     keynameHash *getHash;
     HASH_FIND_PTR(hashTable,&keyname, getHash);
-    
-    //    char s[100];
-    //    sprintf(s,"getHash->size == %d\n", getHash->size);
-    //    write_console(20,s);
     
     return getHash->size;
 }
@@ -78,7 +74,7 @@ int DeletePersistentObject(char * keyname)
     
     LL_FOREACH(getHash->blocksHead,temp)
     {
-        ClearBits(temp->blockPosition);
+        ClearBits(temp->blockPosition, Disk);
     }
     
     HASH_DEL(hashTable, getHash);
@@ -86,50 +82,49 @@ int DeletePersistentObject(char * keyname)
     return 0;
 }
 
-
-// TODO: the elephent in the room, implement a linked list to deal w/ offset, and size
-// calling map_physical_page more than once
+// Assumption: if offset exceeds current allocated disk blocks, new blocks will reflect the new size
 void * MapPersistentObject(char * keyname, int offset, int size)
 {
+    
     /*
-     1. if size == 0, map virtual to physical
-     2. else, read from disk and map disk content to virtual, using map_physical_page
-     3. Create a new hashtable, the key is the virtual address, the value is physical address
-     
+     1. initilize a structure that maps various addresses to one virtual addresses
+     2. get the value of the given keyname, to get the list of locations on Disk
+     3. calculate offset in blocks unit, iterate thorugh the linked list to get the starting block
+     4. start reading from disk, mapping each disk block to a memory block
+     5. if request blocks is more than the previously assigned data in disk, then start allocating new disk blocks
+     5a. append new disk blocks to the keyname
+     6. return the first assigned virtual address
      */
     
-    //    if (GetPersistentObjectSize(keyname) == 0)
-    //    {
-    /*
-     1. find the first available bit in memory
-     2. translate the position of the bit, to an actual physical address
-     3. Hash as described below
-     4. This address will be mapped using map_physical_page
-     */
-    // TODO: get the first free bit in main memory
+    
+    // initilize getHash
+    addressHash *getHashAddresses;
+    
+    getHashAddresses->physicalAddresesInDiskHead = NULL;
+    getHashAddresses->physicalAddresesInMemoryHead = NULL;
+    getHashAddresses->keyname = keyname;
     
     int requestedBlocksInMemory = size/PAGE_SIZE + 1;
     int blocksToSkip = offset/(BLOCK_SIZE * SECTOR_SIZE);
     
     int memLocation = 0;
-    void *addr = NULL;
+    void *memAddress = NULL;
     int blockPhysicalAddr = 0;
+    
+    int tempSize = size;
     
     
     keynameHash *getHash;
     HASH_FIND_PTR(hashTable,&keyname, getHash);
     
-    blockNode *temp;
+    blockNode *temp = getHash->blocksHead;
     
     int i = 0;
     
     // find the first block to read taking into consideration the offset
-    LL_FOREACH(getHash->blocksHead, temp)
+    while(i < blocksToSkip && temp != NULL)
     {
-        if (blocksToSkip == i)
-        {
-            break;
-        }
+        temp = temp->next;
         i++;
     }
     
@@ -137,27 +132,49 @@ void * MapPersistentObject(char * keyname, int offset, int size)
     void * returnVirtualAddress = NULL;
     
     // Allocate pages in memory, read pages in disk, copy pages in disk into memory
-    while(requestedBlocksInMemory > 0)
+    while(requestedBlocksInMemory > 0 && temp != NULL)
     {
+        // get first avialable location in memory
         memLocation = SearchForAvailableBit(Memory);
         SetBits(memLocation,Memory);
-        addr = translateBitPositionToPageNumberInMemory(memLocation);
+        memAddress = translateBitPositionToPageNumberInMemory(memLocation);
         
+        
+        // to return the first virtual address, susequent virtual addresses will allocated sequentially
         if (returnAddressFlag)
         {
-            returnVirtualAddress = map_physical_page(addr);
+            returnVirtualAddress = map_physical_page(memAddress);
             returnAddressFlag = 0;
         }
         else
         {
-            map_physical_page(addr);
+            map_physical_page(memAddress);
         }
         
+        
         blockPhysicalAddr = translateBitPositionToBlockNumberInDisk(temp->blockPosition);
-        read_disk(blockPhysicalAddr, BLOCK_SIZE, addr);
+        
+        // Update hashtable for addresses
+        physicalAddresesInDiskNode *toAddDisk = malloc(sizeof(physicalAddresesInDiskNode));
+        toAddDisk->physicalInDisk = blockPhysicalAddr;
+        LL_APPEND(getHashAddresses->physicalAddresesInDiskHead, toAddDisk);
+        free(toAddDisk);
+        
+        physicalAddresesInMemoryNode *toAddMemory = malloc(sizeof(physicalAddresesInMemoryNode));
+        toAddMemory->physicalInMemory = memAddress;
+        LL_APPEND(getHashAddresses->physicalAddresesInMemoryHead, toAddMemory);
+        free(toAddMemory);
+        
+        // read block physical address into memAddress
+        read_disk(blockPhysicalAddr, BLOCK_SIZE, memAddress);
         
         requestedBlocksInMemory--;
         temp = temp->next;
+        
+        // update size
+        tempSize -= PAGE_SIZE;
+        
+        
         
         // break and continue allocating new pages in Disk in the next loop
         if (temp == NULL)
@@ -165,92 +182,281 @@ void * MapPersistentObject(char * keyname, int offset, int size)
             break;
         }
     }
-    //        int memLocation = SearchForAvailableBit(Memory);
-    //        SetBits(memLocation,Memory);
-    //        void *addr = translateBitPositionToPageNumberInMemory(memLocation);
-    //
+    
+    if (tempSize > 0)
+    {
+        getHashAddresses->size += tempSize;
+    }
+    
+    // This loop handles all cases when map request is more than what had been allocated
+    while(requestedBlocksInMemory > 0)
+    {
+        // Get a new disk block, and append it to the keyname
+        blockNode *blockNodeToAdd = malloc(sizeof(blockNode));
+        blockNodeToAdd->blockPosition = SearchForAvailableBit(Disk);
+        LL_APPEND(getHash->blocksHead, blockNodeToAdd);
+        SetBits(blockNodeToAdd->blockPosition,Disk);
+        
+        // Get a new block in memory
+        memLocation = SearchForAvailableBit(Memory);
+        SetBits(memLocation,Memory);
+        memAddress = translateBitPositionToPageNumberInMemory(memLocation);
+        
+        // Update hashtable for addresses
+        physicalAddresesInDiskNode *toAddDisk = malloc(sizeof(physicalAddresesInDiskNode));
+        toAddDisk->physicalInDisk = translateBitPositionToBlockNumberInDisk(blockNodeToAdd->blockPosition);
+        LL_APPEND(getHashAddresses->physicalAddresesInDiskHead, toAddDisk);
+        free(toAddDisk);
+        
+        physicalAddresesInMemoryNode *toAddMemory = malloc(sizeof(physicalAddresesInMemoryNode));
+        toAddMemory->physicalInMemory = memAddress;
+        LL_APPEND(getHashAddresses->physicalAddresesInMemoryHead, toAddMemory);
+        free(toAddMemory);
+        
+        
+        
+        // Map disk to memory
+        map_physical_page(memAddress);
+        
+        requestedBlocksInMemory--;
+    }
     
     
+    getHash->mappedFlag = 1;
+    // Update remaining hash structures keys & values and add it to the hashtable
     
-    addressHash *hashit = malloc(sizeof(addressHash));
-//    hashit->keyVirtualAddr = map_physical_page(addr);
-    hashit->keyVirtualAddr = returnVirtualAddress;
-    hashit->physicalInMemory = addr;
-    hashit->physicalInDisk = blockPhysicalAddr;
-    hashit->size = size;
-    
-    HASH_ADD_PTR(hashTableAddresses, keyVirtualAddr, hashit);
+    getHashAddresses->keyVirtualAddr = returnVirtualAddress;
+    HASH_ADD_PTR(hashTableAddresses, keyVirtualAddr, getHashAddresses);
     
     return returnVirtualAddress;
-    
-    //    }
-    
-    /*
-     1. use key to get block position from the hashtable
-     2. transfer the block position to an actual physical address
-     3. find first available bit in memory, translate into actual physical address
-     4. read_disk using block physical address from step 2. and store data in physical address from step 3.
-     5. fill up the hasthtable using virtual as key, and physicall addresses as values
-     6. map the physical address from step 3. to a page in memory using map_physical_page
-     */
-    
-    // 1.
-    //    keynameHash *getHash;
-    //    HASH_FIND_PTR(hashTable,&keyname, getHash);
-    //
-    //    // 2. 3.
-    //    int blockPhysicalAddr = translateBitPositionToBlockNumberInDisk(getHash->blockPosition);
-    //    int memLocation = SearchForAvailableBit(Memory);
-    //    SetBits(memLocation,Memory);
-    //    void *addr = translateBitPositionToPageNumberInMemory(memLocation);
-    //
-    //    // 4.
-    //    read_disk(blockPhysicalAddr, BLOCK_SIZE, addr);
-    //
-    //    // 5.
-    //    addressHash *hashit = malloc(sizeof(addressHash));
-    //    hashit->keyVirtualAddr = map_physical_page(addr);
-    //    hashit->physicalInMemory = addr;
-    //    hashit->physicalInDisk = blockPhysicalAddr;
-    //    hashit->size = size;
-    //
-    //    HASH_ADD_PTR(hashTableAddresses, keyVirtualAddr, hashit);
-    //
-    //    free(hashit);
-    //    // 6.
-    //    return map_physical_page(addr);
     
 }
 
 int UnMapPersistentObject(char * address)
 {
     /*
-     1. translate the given virtual address into a physical address, using the hashtable
-     2. write back to the disk using the physical address (location in disk available in BitMap)
+     1. translate the given virtual addresses into a physical addresses, using the hashtable
+     2. write back to the disk using the physical addresses (location in disk available in BitMap)
      3. Remove virtual address from hashtable
      4. clear bits in BitMapMemory
      5. in someway, free the virtual space --> NO NEED
      */
     
-    addressHash *getHash;
-    HASH_FIND_PTR(hashTable,&address, getHash);
+    addressHash *getHashAddress;
+    HASH_FIND_PTR(hashTableAddresses,&address, getHashAddress);
     
-    int numOfSectors = (getHash->size/SECTOR_SIZE) + 1;
+    // find the keyname hash instance and set its 'mapped' flag to 0
+    keynameHash *getHash;
+    HASH_FIND_PTR(hashTable, &(getHashAddress->keyname), getHash);
+    getHash->mappedFlag = 0;
+    
+    int numOfSectors = (getHashAddress->size/SECTOR_SIZE) + 1;
     int numOfBlocks = (numOfSectors/BLOCK_SIZE) * 8;
     
-    write_disk((void *)(getHash->physicalInDisk/8), numOfBlocks , (void *)getHash->physicalInMemory);
+    physicalAddresesInDiskNode *physicalDiskNode = getHashAddress->physicalAddresesInDiskHead;
+    physicalAddresesInMemoryNode *physicalMemoryNode = getHashAddress->physicalAddresesInMemoryHead;
     
-    ClearBits((int)getHash->physicalInMemory/4096,Memory);
+    while (physicalDiskNode)
+    {
+        
+        write_disk((void *)(physicalDiskNode->physicalInDisk), numOfBlocks , (void *)physicalMemoryNode->physicalInMemory);
+        
+        ClearBits((int)physicalMemoryNode->physicalInMemory/PAGE_SIZE,Memory);
+        
+        physicalDiskNode = physicalDiskNode->next;
+        physicalMemoryNode = physicalMemoryNode->next;
+    }
     
-    HASH_DEL(hashTableAddresses, getHash);
+    HASH_DEL(hashTableAddresses, getHashAddress);
     
     return 0;
 }
 
+int TruncatePersistentObject(char * keyname, int offset, int length)
+{
+    /*
+     1. get block positions in disk using bitmap from the keyname as key to the hashtable
+     2. check for error conditions
+     3. calculate offset in blocks
+     4. clear bits as long as the difference between the position of the length and
+     the position of the offset is greater than zero
+     5. Update the linked list of the block position appropriatley
+     
+     */
+    
+    // get object with the given keyname
+    keynameHash *getHash;
+    HASH_FIND_PTR(hashTable, &keyname, getHash);
+    
+    // return error if the object is not currently mapped, or offset/length are not valid
+    if((!getHash->mappedFlag) || (offset >= getHash->size) || (offset + length) >= getHash->size )
+    {
+        return -1;
+    }
+    
+    
+    getHash->size -= length;
+    
+    if (length < PAGE_SIZE)
+    {
+        return 0;
+    }
+    
+    int offsetInBlocks = offset/BLOCK_SIZE;
+    int spaceInFirstBlock = (offsetInBlocks+1) * PAGE_SIZE - offset;
+    int newLength = length - spaceInFirstBlock;
+    
+    blockNode *tempBlockNode = getHash->blocksHead;
+    blockNode *storeBlockNode = tempBlockNode;
+    blockNode *temp2BlockNode = tempBlockNode;
+    
+    // iterate through the list to get to the propahh starting block
+    while(offsetInBlocks > 0)
+    {
+        tempBlockNode = tempBlockNode->next;
+        offsetInBlocks--;
+    }
+    
+    
+    while (newLength > PAGE_SIZE)
+    {
+        // remove block by flipping the bit in bitmap to 0
+        ClearBits(tempBlockNode->blockPosition,Disk);
+        temp2BlockNode = tempBlockNode->next;
+        LL_DELETE(getHash->blocksHead, tempBlockNode);
+        free(tempBlockNode);
+        tempBlockNode = temp2BlockNode;
+        newLength -= PAGE_SIZE;
+        
+    }
+    
+    // update the linked list
+    storeBlockNode->next = tempBlockNode;
+    
+    
+    return 0;
+}
 
+int FreePersistentStoreSpace()
+{
+    
+    return freeBlocks * SECTOR_SIZE * BLOCK_SIZE;
+    //    return 0;
+}
 
+int UsedPersistentStoreSpace()
+{
+    return usedBlocks * SECTOR_SIZE * BLOCK_SIZE;
+    //    return 0;
+}
+
+int NumOfPersistentObjects()
+{
+    return HASH_COUNT(hashTable);
+}
+
+int keyname_sorti(keynameHash *a, keynameHash *b)
+{
+    int result = strcmp(a->keynameH, b->keynameH);
+    return (result > 0);
+}
+
+char * GetPersistentObjectKey(int i)
+{
+    if (i > NumOfPersistentObjects())
+    {
+        return NULL;
+    }
+    
+    
+    int j = 0;
+    
+    HASH_SORT( hashTable, keyname_sorti);
+    keynameHash *s = hashTable;
+    
+    for(s = hashTable; j < i ; s=s->hh.next)
+    {
+        j++;
+    }
+    
+    return s->keynameH;
+    
+}
+
+void logKeyNameHashTable()
+{
+    FILE *fp = fopen( "HashTableKeyNameLog","w+");
+    
+    keynameHash *s = hashTable;
+    blockNode *tempBlock = NULL;
+    
+    for(s = hashTable; s != NULL ; s=s->hh.next)
+    {
+        fprintf(fp,"%s\n", s->keynameH);
+        fprintf(fp,"%d\n", s->size);
+        
+        tempBlock = s->blocksHead;
+        
+        while (tempBlock != NULL)
+        {
+            fprintf(fp,"%d ",tempBlock->blockPosition);
+            tempBlock = tempBlock->next;
+        }
+        
+        fprintf(fp,"-1\n");
+    }
+    
+    fclose(fp);
+
+}
+
+void initilizeKeyNameHashTable(char *logName)
+{
+    FILE *fp = fopen(logName,"r");
+    char keyname[256];
+    int size = 0;
+    int blockPosition = 0;
+    
+    
+    
+    while (!feof (fp))
+    {
+        blockNode *blocksHandler = NULL;
+        fscanf(fp, "%s", keyname);
+        fscanf(fp, "%d", &size);
+        
+        while (1)
+        {
+            blockNode *tempBlockNode = malloc(sizeof(blockNode));
+            fscanf(fp,"%d",&blockPosition);
+            
+            if (blockPosition == -1)
+            {
+                break;
+            }
+            
+            tempBlockNode->blockPosition = blockPosition;
+            LL_APPEND(blocksHandler, tempBlockNode);
+            //free(tempBlockNode);
+        }
+        
+        keynameHash *tempToHash = malloc(sizeof(keynameHash));
+        tempToHash->keynameH = keyname;
+        tempToHash->mappedFlag = 0;
+        tempToHash->size = size;
+        tempToHash->blocksHead = blocksHandler;
+        
+        HASH_ADD_PTR(hashTable, keynameH, tempToHash);
+
+        free(tempToHash);
+
+    }
+    
+    fclose (fp);
+    
+}
 /* (4) for (all phjysical disks)
- read_disks --> you will get four transcations ids
+ read_ disks --> you will get four transcations ids
  
  
  

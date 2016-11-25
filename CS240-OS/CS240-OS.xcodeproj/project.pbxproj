@@ -17,6 +17,7 @@
 		072FC12E1DE25C75004CA607 /* ObjectStore.c in Sources */ = {isa = PBXBuildFile; fileRef = 072FC12C1DE25C75004CA607 /* ObjectStore.c */; };
 		074513DF1DE1E80800CD84E1 /* console_interface.c in Sources */ = {isa = PBXBuildFile; fileRef = 074513DD1DE1E80800CD84E1 /* console_interface.c */; };
 		079729BA1DD8AA5E009CB125 /* kernel.c in Sources */ = {isa = PBXBuildFile; fileRef = 079729B21DD8AA5E009CB125 /* kernel.c */; };
+		07A978101DE8949A00292D74 /* HandleDisk.c in Sources */ = {isa = PBXBuildFile; fileRef = 07A9780E1DE8949A00292D74 /* HandleDisk.c */; };
 		07DC38261DDDF24A003B6AB2 /* interrupts.c in Sources */ = {isa = PBXBuildFile; fileRef = 07DC38241DDDF24A003B6AB2 /* interrupts.c */; };
 /* End PBXBuildFile section */
 
@@ -52,6 +53,8 @@
 		079729921DD8A5F6009CB125 /* CS240-OS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "CS240-OS"; sourceTree = BUILT_PRODUCTS_DIR; };
 		079729AD1DD8A9D5009CB125 /* en */ = {isa = PBXFileReference; lastKnownFileType = file; name = en; path = en.lproj/cs240.dsk; sourceTree = "<group>"; };
 		079729B21DD8AA5E009CB125 /* kernel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kernel.c; sourceTree = "<group>"; };
+		07A9780E1DE8949A00292D74 /* HandleDisk.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = HandleDisk.c; sourceTree = "<group>"; };
+		07A9780F1DE8949A00292D74 /* HandleDisk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HandleDisk.h; sourceTree = "<group>"; };
 		07DC38241DDDF24A003B6AB2 /* interrupts.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = interrupts.c; sourceTree = "<group>"; };
 		07DC38251DDDF24A003B6AB2 /* interrupts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interrupts.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -83,6 +86,8 @@
 				07226B0A1DE7302E00496B69 /* kernel.h */,
 				072FC12C1DE25C75004CA607 /* ObjectStore.c */,
 				072FC12D1DE25C75004CA607 /* ObjectStore.h */,
+				07A9780E1DE8949A00292D74 /* HandleDisk.c */,
+				07A9780F1DE8949A00292D74 /* HandleDisk.h */,
 				072FC1281DE241F3004CA607 /* BitMap.c */,
 				072FC1291DE241F3004CA607 /* BitMap.h */,
 				07DC38241DDDF24A003B6AB2 /* interrupts.c */,
@@ -175,6 +180,7 @@
 			files = (
 				079729BA1DD8AA5E009CB125 /* kernel.c in Sources */,
 				074513DF1DE1E80800CD84E1 /* console_interface.c in Sources */,
+				07A978101DE8949A00292D74 /* HandleDisk.c in Sources */,
 				072FC12A1DE241F3004CA607 /* BitMap.c in Sources */,
 				07DC38261DDDF24A003B6AB2 /* interrupts.c in Sources */,
 				072FC12E1DE25C75004CA607 /* ObjectStore.c in Sources */,

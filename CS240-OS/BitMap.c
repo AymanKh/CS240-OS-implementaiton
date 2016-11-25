@@ -9,6 +9,7 @@
 #include "BitMap.h"
 
 
+
 void SetBits(int position,int dest)
 {
     /* 1. set bit at 'position' to one */
@@ -24,6 +25,8 @@ void SetBits(int position,int dest)
     else if (dest == Disk)
     {
         sectorGroup = &BitMapDisk[arrayPos];
+        usedBlocks++;
+        freeBlocks--;
     }
     
     // set bitPos to '1'    
@@ -47,7 +50,10 @@ void ClearBits(int position,int dest)
     else if (dest == Disk)
     {
         sectorGroup = &BitMapDisk[arrayPos];
+        usedBlocks--;
+        freeBlocks++;
     }
+    
     // set bitPos to '0'
     *sectorGroup ^= ((unsigned long long int)0 ^ *sectorGroup) & ((unsigned long long int)1 << bitPos);
     
@@ -167,10 +173,37 @@ void* translateBitPositionToPageNumberInMemory(int position)
     return addr;
 }
 
-
-// TODO: LATER
-void initilizeBitMap(FILE* log)
+void logBitMap()
 {
+    FILE *fp = fopen( "DiskBitMapLog","w+");
+
+    
+    for (int i = 0; i < 2048; i++)
+    {
+        fprintf(fp,"%llu\n", BitMapDisk[i]);
+    }
+    
+    fclose(fp);
+    
+}
+
+void initilizeBitMap(char *logName)
+{
+    FILE *fp = fopen(logName,"r");
+    
+    int i = 0;
+    while (!feof (fp))
+    {
+        
+        fscanf(fp, "%llu", &BitMapDisk[i]);
+        i++;
+    }
+    
+    fclose (fp);
+    
+//    char b[60];
+//    sprintf(b,"value = %llu\n", BitMapDisk[5]);
+//    write_console(20,b);
     
 }
 

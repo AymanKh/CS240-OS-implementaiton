@@ -40,6 +40,19 @@ void kernel_start()
     GetPersistentObjectSize("Monkey Name");
     DeletePersistentObject("Monkey Name");
     
+//    logBitMap();
+//    initilizeBitMap("DiskBitMapLog");
+    
+//    FILE *fp = fopen( "HashTableKeyNameLog","w+");
+    initilizeKeyNameHashTable("HashTableKeyNameLog");
+
+    
+    
+    
+
+
+    
+    
     
     
 //    void *addr = (void *) 1048576;
@@ -50,13 +63,13 @@ void kernel_start()
 //    temp->array[2] = '\0';
 //    write_disk(0, 1, addr);
     
-    struct Temp *temp2;
-    void *addr2 = (void *)(1<<20);
-    temp2 = (struct Temp *)map_physical_page(addr2);
-    read_disk(0, 1, addr2);
-    char b[30];
-    sprintf(b, "kernel: read from disk: %c\n", temp2->array[1]);
-    write_console((unsigned) strlen(b), b);
+//    struct Temp *temp2;
+//    void *addr2 = (void *)(1<<20);
+//    temp2 = (struct Temp *)map_physical_page(addr2);
+//    read_disk(0, 1, addr2);
+//    char b[30];
+//    sprintf(b, "kernel: read from disk: %c\n", temp2->array[1]);
+//    write_console((unsigned) strlen(b), b);
 
     halt();
 //    shutdown_machine();

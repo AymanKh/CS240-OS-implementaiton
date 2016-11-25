@@ -13,6 +13,7 @@
 #include "uthash.h"
 #include "utlist.h"
 #include "hardware_interface.h"
+//#include "BitMap.h"
 
 #define BLOCK_SIZE 8
 //#include "BitMap.h"
@@ -30,6 +31,7 @@ int UsedPersistentStoreSpace();
 int NumOfPersistentObjects();
 char * GetPersistentObjectKey(int i);
 
+
 typedef struct blockNode blockNode;
 
 struct blockNode {
@@ -37,26 +39,44 @@ struct blockNode {
     blockNode *next; /* needed for singly- or doubly-linked lists */
 };
 
+typedef struct physicalAddresesInDiskNode physicalAddresesInDiskNode;
+
+struct physicalAddresesInDiskNode {
+    int physicalInDisk;
+    physicalAddresesInDiskNode *next;
+};
+
+typedef struct physicalAddresesInMemoryNode physicalAddresesInMemoryNode;
+
+struct physicalAddresesInMemoryNode {
+    void * physicalInMemory;
+    physicalAddresesInMemoryNode *next;
+};
+
 
 
 typedef struct _KeynameHash {
     char *keynameH;
     int size;
-//    blockNode blockPosition;
+    int mappedFlag;
     blockNode *blocksHead;
     UT_hash_handle hh;         /* makes this structure hashable */
 } keynameHash ;
 
 keynameHash *hashTable = NULL;
 
+int keyname_sorti(keynameHash *a, keynameHash *b);
+
+
 // Map virtual address to physical ones in memory and in disk
 typedef struct _addressesHash {
+    char * keyname;
     void * keyVirtualAddr;
-    void * physicalInMemory;
-    int physicalInDisk;
+    physicalAddresesInDiskNode *physicalAddresesInDiskHead;
+    physicalAddresesInMemoryNode *physicalAddresesInMemoryHead;
     int size;
     UT_hash_handle hh;         /* makes this structure hashable */
-} addressHash ;
+} addressHash;
 
 addressHash *hashTableAddresses = NULL;
 
@@ -69,5 +89,11 @@ extern int Disk;
 // BitMap functions
 //extern int SearchForAvailableBit();
 //extern void SetBits(int position);
+
+// Track Used and Free Space, to facilitate life
+int usedBlocks = 0;
+int freeBlocks = NO_OF_BLOCKS;
+
+
 
 #endif /* ObjectStore_h */
