@@ -14,6 +14,8 @@
 #include <string.h>
 #include "hardware_interface.h"
 #include "console_interface.h"
+#include "uthash.h"
+//#include "HandleDisk.h"
 //#include "BitMap.h"
 
 struct Temp {
@@ -27,6 +29,18 @@ void DiskInterrupt(int input);
 void MachineCheckInterrupt(int input);
 
 extern int nbytes;
+
+typedef struct _cont {
+    void (* func)();
+    int tid;
+    void *arg1;
+    void *arg2;
+    UT_hash_handle hh;         /* makes this structure hashable */
+} cont;
+//
+
+extern cont *hashTablePC;
+
 //extern char consoleInput[100];
 
 #endif /* interrupts_h */

@@ -9,6 +9,8 @@
 #include "kernel.h"
 
 
+
+
 void kernel_start()
 {
 //    set_debug_mode(DEBUG_ALL);
@@ -34,17 +36,18 @@ void kernel_start()
     set_ivec(I_DSK, diskInterruptPointer);
     set_ivec(I_CHECK, machineCheckInterruptPointer);
     
+    readDiskWrapper();
     
     // Testing POS
-    CreatePersistentObject("Monkey Name");
-    GetPersistentObjectSize("Monkey Name");
-    DeletePersistentObject("Monkey Name");
+//    CreatePersistentObject("Monkey Name");
+//    GetPersistentObjectSize("Monkey Name");
+//    DeletePersistentObject("Monkey Name");
     
 //    logBitMap();
 //    initilizeBitMap("DiskBitMapLog");
     
-//    FILE *fp = fopen( "HashTableKeyNameLog","w+");
-    initilizeKeyNameHashTable("HashTableKeyNameLog");
+    
+//    readDiskWrapper();
 
     
     
@@ -62,6 +65,16 @@ void kernel_start()
 //    temp->array[1] = 'y';
 //    temp->array[2] = '\0';
 //    write_disk(0, 1, addr);
+//    
+//    void *addr2 = (void *) (1048576+4096*10);
+//    struct Temp *temp2;
+//    temp2 = (struct Temp *)map_physical_page(addr2);
+//    temp2->array[0] = 'x';
+//    temp2->array[1] = 'y';
+//    temp2->array[2] = '\0';
+//    write_disk(0, 1, addr2);
+//    
+//    int diff = (int)temp2-(int)temp;
     
 //    struct Temp *temp2;
 //    void *addr2 = (void *)(1<<20);

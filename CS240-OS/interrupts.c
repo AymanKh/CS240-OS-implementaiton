@@ -15,7 +15,7 @@ int clockRunning = 0;
 int jiffies = 0;
 char consoleInput[100];
 int noOfChars = 0;
-
+//cont *hashTablePC = NULL;
 
 // Clock Interrupt
 
@@ -72,22 +72,30 @@ void ConsoleInterrupt(int input)
     
 }
 
-void DiskInterrupt(int input)
+void DiskInterrupt(int tid)
 {
-    if (input == 0)
-    {
-        struct Temp *temp;
-        void *addr = (void *)(1<<20);
-        temp = (struct Temp *)map_physical_page(addr);
-        read_disk(0, 1, addr);
-        char b[512];
-        sprintf(b, "Interrupt: read from disk in interrupt: %c\n", temp->array[0]);
-        write_console((unsigned) strlen(b), b);
-    }
+//    if (tid == 0)
+//    {
+//        struct Temp *temp;
+//        void *addr = (void *)(1<<20);
+//        temp = (struct Temp *)map_physical_page(addr);
+//        read_disk(0, 1, addr);
+//        char b[512];
+//        sprintf(b, "Interrupt: read from disk in interrupt: %c\n", temp->array[0]);
+//        write_console((unsigned) strlen(b), b);
+//    }
+    
+
+    
+    cont *test = malloc(sizeof(cont));
+
+    HASH_FIND_INT(hashTablePC, &tid, test);
     
     char s[50];
-    sprintf(s,"Interrupt: Disk Interrupt! t_id = %d \n",input);
+    sprintf(s,"Interrupt: Disk Interrupt! t_id = %d \n",tid);
     write_console((unsigned) strlen(s), s);
+    (test->func)(test->arg1);
+    
     halt();
 }
 

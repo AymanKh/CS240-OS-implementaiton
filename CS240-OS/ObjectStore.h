@@ -39,6 +39,19 @@ struct blockNode {
     blockNode *next; /* needed for singly- or doubly-linked lists */
 };
 
+/* 
+ This structure stores the addresses that need to be written to disk in pairs(disk address & memory address)
+ will be used in a function that reads disk after the logic/calculations of the mapping is complete
+*/
+typedef struct addressesToReadNode addressToReadNode;
+
+struct addressesToReadNode {
+    int blockPhysicalAddr;
+    void* memAddress;
+    addressToReadNode *next; /* needed for singly- or doubly-linked lists */
+};
+
+
 typedef struct physicalAddresesInDiskNode physicalAddresesInDiskNode;
 
 struct physicalAddresesInDiskNode {
@@ -52,7 +65,6 @@ struct physicalAddresesInMemoryNode {
     void * physicalInMemory;
     physicalAddresesInMemoryNode *next;
 };
-
 
 
 typedef struct _KeynameHash {
