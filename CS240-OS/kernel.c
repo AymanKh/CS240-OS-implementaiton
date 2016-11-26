@@ -42,14 +42,47 @@ void kernel_start()
     
     //     Testing POS
     int c1 = CreatePersistentObject("Monkey Name1");
+    int c2 = CreatePersistentObject("Monkey Name2");
+    int c3 = CreatePersistentObject("Monkey Name3");
+    int c4 = CreatePersistentObject("Monkey Name4");
+    int c5 = CreatePersistentObject("Monkey Name5");
+//
+//    
     int g1 = GetPersistentObjectSize("Monkey Name1");
+//    int g2 = GetPersistentObjectSize("Monkey Name2");
+//    int g3 = GetPersistentObjectSize("Monkey Name3");
+//    int g4 = GetPersistentObjectSize("Monkey Name4");
+//    int g5 = GetPersistentObjectSize("Monkey Name5");
+//    
+    void *p1;
+    p1 = MapPersistentObject("Monkey Name1",0, 10);
     
-    void *p1 = MapPersistentObject("Monkey Name1",0, 10);
+//        void * p2 = MapPersistentObject("Monkey Name2",0, 4096);
+//        void * p3 = MapPersistentObject("Monkey Name3",0, 4096*10);
+//        void * p4 = MapPersistentObject("Monkey Name4",0, 3000*7);
+//    
+//        void * p5 = MapPersistentObject("Monkey Name1",0, 7000);
+//
+//    
+        int u1 = UnMapPersistentObject(p1);
+//        int u2 = UnMapPersistentObject(p5);
+//        int u3 = UnMapPersistentObject(p4);
+//            int u4 = UnMapPersistentObject(p2);
+//    
+//        int t1 = TruncatePersistentObject("Monkey Name4",0,7000);
+//
+//    
+//    int d1 = DeletePersistentObject("Monkey Name2");
     
-    int d1 = DeletePersistentObject("Monkey Name1");
+    
+    
+    
+    
+    //&&&&&
+    
     
     logKeyNameHashTable();
-    logBitMap();
+//    logBitMap();
 
     
     
@@ -111,13 +144,13 @@ void kernel_start()
     
     
     
-    //    void *addr = (void *) 1048576;
-    //    struct Temp *temp;
-    //    temp = (struct Temp *)map_physical_page(addr);
-    //    temp->array[0] = 'x';
-    //    temp->array[1] = 'y';
-    //    temp->array[2] = '\0';
-    //    write_disk(0, 1, addr);
+        void *addr = (void *) 1048576;
+        struct Temp *temp;
+        temp = (struct Temp *)map_physical_page(addr);
+        temp->array[0] = 'x';
+        temp->array[1] = 'y';
+        temp->array[2] = '\0';
+        write_disk(0, 1, addr);
     //
     //    void *addr2 = (void *) (1048576+4096);
     //    struct Temp *temp2;
@@ -138,7 +171,7 @@ void kernel_start()
     //    write_console((unsigned) strlen(b), b);
     
     halt();
-    //    shutdown_machine();
+//        shutdown_machine();
 }
 
 

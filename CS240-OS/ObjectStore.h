@@ -24,7 +24,7 @@ int CreatePersistentObject(char * keyname);
 int DeletePersistentObject(char * keyname);
 int GetPersistentObjectSize(char * keyname);
 void * MapPersistentObject(char * keyname, int offset, int size);
-int UnMapPersistentObject(char * address);
+int UnMapPersistentObject(void * address);
 int TruncatePersistentObject(char * keyname, int offset, int length);
 int FreePersistentStoreSpace();
 int UsedPersistentStoreSpace();

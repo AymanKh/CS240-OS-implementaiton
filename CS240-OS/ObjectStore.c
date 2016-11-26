@@ -46,7 +46,7 @@ int CreatePersistentObject(char *keyname)
     
     HASH_ADD_PTR(hashTable, keynameH, hashit);
     
-    free(hashit);
+//    free(hashit);
     
     return 0;
 }
@@ -61,7 +61,7 @@ int GetPersistentObjectSize(char * keyname)
     HASH_FIND_PTR(hashTable,&strp, getHash);
     
     // TODO: check for NULL
-    return getHash->size;;
+    return getHash->size;
 }
 
 int DeletePersistentObject(char * keyname)
@@ -106,11 +106,12 @@ void * MapPersistentObject(char * keyname, int offset, int size)
     
     
     // initilize getHash
-    addressHash *getHashAddresses;
+    addressHash *getHashAddresses = malloc(sizeof(addressHash));
     
     getHashAddresses->physicalAddresesInDiskHead = NULL;
     getHashAddresses->physicalAddresesInMemoryHead = NULL;
-    getHashAddresses->keyname = keyname;
+    getHashAddresses->keyname = malloc(256);
+    strcpy(getHashAddresses->keyname,keyname);
     
     addressToReadNode *adressesToReadHead = NULL;
     
@@ -124,19 +125,26 @@ void * MapPersistentObject(char * keyname, int offset, int size)
     int tempSize = size;
     
     
-    keynameHash *getHash;
+//    keynameHash *getHash;
     assert(HASH_COUNT(hashTable) != 0);
     
-    keynameHash *s = hashTable;
-    blockNode *tempBlock = NULL;
+    keynameHash *getHash = hashTable;
     
-    for(s = hashTable; s != NULL ; s=s->hh.next)
+    for(getHash = hashTable; getHash != NULL ; getHash=getHash->hh.next)
     {
-        char * st = s->keynameH;
-        tempBlock = s->blocksHead;
+        char * st = getHash->keynameH;
+        
+        if (strcmp(st,keyname) == 0)
+        {
+            break;
+        }
+//        tempBlock = s->blocksHead;
     }
-
-    HASH_FIND_PTR(hashTable,&keyname, getHash);
+    void * pp = malloc(256);
+    strcpy(pp,keyname);
+//    HASH_FIND_PTR(hashTable,&pp, getHash);
+//    HASH_FIND(hh, records, &l.key, sizeof(record_key_t), p);
+//    HASH_FIND(hh, hashTable, &pp, 8, getHash);
     
     blockNode *temp = getHash->blocksHead;
     
@@ -150,7 +158,7 @@ void * MapPersistentObject(char * keyname, int offset, int size)
     }
     
     int returnAddressFlag = 1;
-    void * returnVirtualAddress = NULL;
+    void * returnVirtualAddress = malloc(sizeof(void*));
     
     // Allocate pages in memory, read pages in disk, copy pages in disk into memory
     while(requestedBlocksInMemory > 0 && temp != NULL)
@@ -265,8 +273,8 @@ void * MapPersistentObject(char * keyname, int offset, int size)
     
     
     
-    
     return returnVirtualAddress;
+    
     
 }
 
@@ -278,7 +286,9 @@ void readDiskWrapper(addressToReadNode *head, int index)
     
     // populate the strucutre to hashed and accessed at the disk interrupt
     cont *contRead = malloc(sizeof(contRead));
+    contRead->arg1 = malloc(sizeof(contRead->arg1));
     contRead->arg1 = head;
+    contRead->arg2 = malloc(sizeof(contRead->arg2));
     contRead->arg2 = index+1;
     contRead->func = &readDiskWrapper;
     
@@ -290,21 +300,20 @@ void readDiskWrapper(addressToReadNode *head, int index)
         temp = temp->next;
     }
     
-    if (temp->next != NULL)
+    if (/*temp->next == NULL*/ temp == NULL)
     {
         
         contRead->func = &halt;
+        halt();
     }
     
     contRead->tid = read_disk(temp->blockPhysicalAddr, BLOCK_SIZE, temp->memAddress);
     
     HASH_ADD_INT(hashTableTid, tid, contRead);
-    
-    
 
 }
 
-int UnMapPersistentObject(char * address)
+int UnMapPersistentObject(void * address)
 {
     /*
      1. translate the given virtual addresses into a physical addresses, using the hashtable
@@ -315,13 +324,39 @@ int UnMapPersistentObject(char * address)
      */
     
     addressToReadNode *adressesToWriteHead = NULL;
+    addressHash *getHashAddress = hashTableAddresses;
     
-    addressHash *getHashAddress;
-    HASH_FIND_PTR(hashTableAddresses,&address, getHashAddress);
+    for(getHashAddress = hashTableAddresses; getHashAddress != NULL ; getHashAddress=getHashAddress->hh.next)
+    {
+        void * st = getHashAddress->keyVirtualAddr;
+        
+        if (st == address)
+        {
+            break;
+        }
+        //        tempBlock = s->blocksHead;
+    }
+
+//    addressHash *getHashAddress;
+//    HASH_FIND_PTR(hashTableAddresses,&address, getHashAddress);
     
     // find the keyname hash instance and set its 'mapped' flag to 0
-    keynameHash *getHash;
-    HASH_FIND_PTR(hashTable, &(getHashAddress->keyname), getHash);
+//    keynameHash *getHash;
+//    HASH_FIND_PTR(hashTable, &(getHashAddress->keyname), getHash);
+    
+    keynameHash *getHash = hashTable;
+    
+    for(getHash = hashTable; getHash != NULL ; getHash=getHash->hh.next)
+    {
+        char * st = getHashAddress->keyname;
+        
+        if (strcmp(st,getHash->keynameH) == 0)
+        {
+            break;
+        }
+        //        tempBlock = s->blocksHead;
+    }
+
     getHash->mappedFlag = 0;
         
     physicalAddresesInDiskNode *physicalDiskNode = getHashAddress->physicalAddresesInDiskHead;
@@ -430,7 +465,7 @@ int TruncatePersistentObject(char * keyname, int offset, int length)
         ClearBits(tempBlockNode->blockPosition,Disk);
         temp2BlockNode = tempBlockNode->next;
         LL_DELETE(getHash->blocksHead, tempBlockNode);
-        free(tempBlockNode);
+//        free(tempBlockNode);
         tempBlockNode = temp2BlockNode;
         newLength -= PAGE_SIZE;
         
@@ -554,7 +589,7 @@ void initilizeKeyNameHashTable(char *logName)
         
         HASH_ADD_PTR(hashTable, keynameH, tempToHash);
 
-        free(tempToHash);
+//        free(tempToHash);
 
     }
     
