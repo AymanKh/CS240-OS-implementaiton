@@ -34,12 +34,12 @@ typedef struct _cont {
     void (* func)();
     int tid;
     void *arg1;
-    void *arg2;
+    int arg2;
     UT_hash_handle hh;         /* makes this structure hashable */
 } cont;
 //
 
-extern cont *hashTablePC;
+extern cont *hashTableTid;
 
 //extern char consoleInput[100];
 

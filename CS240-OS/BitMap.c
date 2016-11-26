@@ -98,10 +98,12 @@ int SearchForAvailableBit(int dest)
     if (dest == Memory)
     {
         limit = 128;
+//        int i = 4;
     }
     else if (dest == Disk)
     {
         limit = 2048;
+//        i = 0;
     }
     else
     {
@@ -110,7 +112,7 @@ int SearchForAvailableBit(int dest)
     
     /* find the position of the first '1' bit*/
     
-    unsigned long long int sectorGroup = 77;
+    unsigned long long int sectorGroup;
     unsigned long long t = 1;
     int r = 1;
     int exitFlag = 0;
@@ -118,8 +120,14 @@ int SearchForAvailableBit(int dest)
     
     while (i < limit)
     {
-        sectorGroup = ~BitMapDisk[i];
-        
+        if (dest == Disk)
+        {
+            sectorGroup = ~BitMapDisk[i];
+        }
+        else
+        {
+            sectorGroup = ~BitMapMemory[i];
+        }
         
         t = 1;
         r = 1;

@@ -7,6 +7,7 @@
 //
 
 #include "interrupts.h"
+#include "utlist.h"
 
 
 
@@ -85,18 +86,29 @@ void DiskInterrupt(int tid)
 //        write_console((unsigned) strlen(b), b);
 //    }
     
-
-    
-    cont *test = malloc(sizeof(cont));
-
-    HASH_FIND_INT(hashTablePC, &tid, test);
-    
     char s[50];
     sprintf(s,"Interrupt: Disk Interrupt! t_id = %d \n",tid);
     write_console((unsigned) strlen(s), s);
-    (test->func)(test->arg1);
+
     
-    halt();
+    if (HASH_COUNT(hashTableTid) == 0)
+    {
+        halt();
+    }
+    
+    cont *test = malloc(sizeof(cont));
+    HASH_FIND_INT(hashTableTid, &tid, test);
+    
+    
+    if (test->func != &halt)
+    {
+        (test->func)(test->arg1, test->arg2);
+    }
+    else
+    {
+        (test->func)();
+    }
+
 }
 
 void MachineCheckInterrupt(int input)

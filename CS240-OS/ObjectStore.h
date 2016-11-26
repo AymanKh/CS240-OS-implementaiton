@@ -68,7 +68,7 @@ struct physicalAddresesInMemoryNode {
 
 
 typedef struct _KeynameHash {
-    char *keynameH;
+    void *keynameH;
     int size;
     int mappedFlag;
     blockNode *blocksHead;
@@ -106,6 +106,19 @@ extern int Disk;
 int usedBlocks = 0;
 int freeBlocks = NO_OF_BLOCKS;
 
+
+
+// This structure will be used when calling actual reads to the disk
+typedef struct _cont {
+    void (* func)();
+    int tid;
+    void *arg1;
+    int arg2;
+    UT_hash_handle hh;         /* makes this structure hashable */
+} cont;
+
+void readDiskWrapper(addressToReadNode *head, int index);
+void writeDiskWrapper(addressToReadNode *head, int index);
 
 
 #endif /* ObjectStore_h */

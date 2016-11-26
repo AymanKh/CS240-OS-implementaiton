@@ -13,7 +13,7 @@
 
 void kernel_start()
 {
-//    set_debug_mode(DEBUG_ALL);
+    //    set_debug_mode(DEBUG_ALL);
     reset_debug_mode();
     start_console();
     initialize_memory(); // Keep track of available pages in main memory
@@ -23,7 +23,7 @@ void kernel_start()
     char a[80];
     sprintf(a, "Hello World %d \n",jiffies);
     write_console((unsigned) strlen(a), a);
-
+    
     // get the address of the clock interrupt
     void (*clockInterruptPointer)(int) = &ClockInterrupt;
     void (*consoleInterruptPointer)(int) = &ConsoleInterrupt;
@@ -36,56 +36,109 @@ void kernel_start()
     set_ivec(I_DSK, diskInterruptPointer);
     set_ivec(I_CHECK, machineCheckInterruptPointer);
     
-    readDiskWrapper();
+    // Testing BitMap
     
-    // Testing POS
-//    CreatePersistentObject("Monkey Name");
-//    GetPersistentObjectSize("Monkey Name");
-//    DeletePersistentObject("Monkey Name");
+//    int b1 = SearchForAvailableBit(Memory);
     
-//    logBitMap();
-//    initilizeBitMap("DiskBitMapLog");
+    //     Testing POS
+    int c1 = CreatePersistentObject("Monkey Name1");
+    int g1 = GetPersistentObjectSize("Monkey Name1");
     
+    void *p1 = MapPersistentObject("Monkey Name1",0, 10);
     
-//    readDiskWrapper();
+    int d1 = DeletePersistentObject("Monkey Name1");
+    
+    logKeyNameHashTable();
+    logBitMap();
 
     
     
     
-
-
+    //    int c2 = CreatePersistentObject("Monkey Name2");
+    //    int c3 = CreatePersistentObject("Monkey Name3");
+    //    int c4 = CreatePersistentObject("Monkey Name4");
+    //    int c5 = CreatePersistentObject("Monkey Name5");
+    
+    //    int g1 = GetPersistentObjectSize("Monkey Name1");
+    //    int g2 = GetPersistentObjectSize("Monkey Name3");
+    //
+    //    void * m1 = MapPersistentObject("Monkey Name1",0, 10);
+    //    void * m2 = MapPersistentObject("Monkey Name2",0, 4096);
+    //    void * m3 = MapPersistentObject("Monkey Name3",0, 4096*10);
+    //    void * m4 = MapPersistentObject("Monkey Name4",0, 3000*7);
+    //
+    //    void * m5 = MapPersistentObject("Monkey Name1",0, 7000);
+    //
+    //    int u1 = UnMapPersistentObject(m1);
+    //    int u2 = UnMapPersistentObject(m5);
+    //    int u3 = UnMapPersistentObject(m4);
+    //
+    //    int t1 = TruncatePersistentObject("Monkey Name4",0,7000);
+    //
+    //    int u4 = UnMapPersistentObject(m2);
+    //
+    //    int d1 = DeletePersistentObject("Monkey Name2");
     
     
     
     
-//    void *addr = (void *) 1048576;
-//    struct Temp *temp;
-//    temp = (struct Temp *)map_physical_page(addr);
-//    temp->array[0] = 'x';
-//    temp->array[1] = 'y';
-//    temp->array[2] = '\0';
-//    write_disk(0, 1, addr);
-//    
-//    void *addr2 = (void *) (1048576+4096*10);
-//    struct Temp *temp2;
-//    temp2 = (struct Temp *)map_physical_page(addr2);
-//    temp2->array[0] = 'x';
-//    temp2->array[1] = 'y';
-//    temp2->array[2] = '\0';
-//    write_disk(0, 1, addr2);
-//    
-//    int diff = (int)temp2-(int)temp;
     
-//    struct Temp *temp2;
-//    void *addr2 = (void *)(1<<20);
-//    temp2 = (struct Temp *)map_physical_page(addr2);
-//    read_disk(0, 1, addr2);
-//    char b[30];
-//    sprintf(b, "kernel: read from disk: %c\n", temp2->array[1]);
-//    write_console((unsigned) strlen(b), b);
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    //    DeletePersistentObject("Monkey Name");
+    
+    //    logBitMap();
+    //    initilizeBitMap("DiskBitMapLog");
+    
+    
+    //    readDiskWrapper();
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    //    void *addr = (void *) 1048576;
+    //    struct Temp *temp;
+    //    temp = (struct Temp *)map_physical_page(addr);
+    //    temp->array[0] = 'x';
+    //    temp->array[1] = 'y';
+    //    temp->array[2] = '\0';
+    //    write_disk(0, 1, addr);
+    //
+    //    void *addr2 = (void *) (1048576+4096);
+    //    struct Temp *temp2;
+    //    temp2 = (struct Temp *)map_physical_page(addr2);
+    //    temp2->array[0] = 'x';
+    //    temp2->array[1] = 'y';
+    //    temp2->array[2] = '\0';
+    //    write_disk(0, 1, addr2);
+    //
+    //    int diff = (int)temp2-(int)temp;
+    
+    //    struct Temp *temp2;
+    //    void *addr2 = (void *)(1<<20);
+    //    temp2 = (struct Temp *)map_physical_page(addr2);
+    //    read_disk(0, 1, addr2);
+    //    char b[30];
+    //    sprintf(b, "kernel: read from disk: %c\n", temp2->array[1]);
+    //    write_console((unsigned) strlen(b), b);
+    
     halt();
-//    shutdown_machine();
+    //    shutdown_machine();
 }
 
 

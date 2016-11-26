@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		07226B131DE7302E00496B69 /* hardware.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07226B0B1DE7302E00496B69 /* hardware.o */; };
-		07226B141DE7302E00496B69 /* disk.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07226B0D1DE7302E00496B69 /* disk.o */; };
 		07226B151DE7302E00496B69 /* debug.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07226B0E1DE7302E00496B69 /* debug.o */; };
 		07226B161DE7302E00496B69 /* console.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07226B0F1DE7302E00496B69 /* console.o */; };
 		07226B1B1DE7307D00496B69 /* mem.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07226B181DE7307D00496B69 /* mem.o */; };
@@ -18,6 +17,7 @@
 		074513DF1DE1E80800CD84E1 /* console_interface.c in Sources */ = {isa = PBXBuildFile; fileRef = 074513DD1DE1E80800CD84E1 /* console_interface.c */; };
 		079729BA1DD8AA5E009CB125 /* kernel.c in Sources */ = {isa = PBXBuildFile; fileRef = 079729B21DD8AA5E009CB125 /* kernel.c */; };
 		07A978101DE8949A00292D74 /* HandleDisk.c in Sources */ = {isa = PBXBuildFile; fileRef = 07A9780E1DE8949A00292D74 /* HandleDisk.c */; };
+		07A978121DE9F99E00292D74 /* disk.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07A978111DE9F99E00292D74 /* disk.o */; };
 		07DC38261DDDF24A003B6AB2 /* interrupts.c in Sources */ = {isa = PBXBuildFile; fileRef = 07DC38241DDDF24A003B6AB2 /* interrupts.c */; };
 /* End PBXBuildFile section */
 
@@ -37,7 +37,6 @@
 		07226B0A1DE7302E00496B69 /* kernel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kernel.h; sourceTree = "<group>"; };
 		07226B0B1DE7302E00496B69 /* hardware.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = hardware.o; sourceTree = "<group>"; };
 		07226B0C1DE7302E00496B69 /* hardware_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hardware_interface.h; sourceTree = "<group>"; };
-		07226B0D1DE7302E00496B69 /* disk.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = disk.o; sourceTree = "<group>"; };
 		07226B0E1DE7302E00496B69 /* debug.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = debug.o; sourceTree = "<group>"; };
 		07226B0F1DE7302E00496B69 /* console.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = console.o; sourceTree = "<group>"; };
 		07226B181DE7307D00496B69 /* mem.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = mem.o; sourceTree = "<group>"; };
@@ -55,6 +54,7 @@
 		079729B21DD8AA5E009CB125 /* kernel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kernel.c; sourceTree = "<group>"; };
 		07A9780E1DE8949A00292D74 /* HandleDisk.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = HandleDisk.c; sourceTree = "<group>"; };
 		07A9780F1DE8949A00292D74 /* HandleDisk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HandleDisk.h; sourceTree = "<group>"; };
+		07A978111DE9F99E00292D74 /* disk.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = disk.o; sourceTree = "<group>"; };
 		07DC38241DDDF24A003B6AB2 /* interrupts.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = interrupts.c; sourceTree = "<group>"; };
 		07DC38251DDDF24A003B6AB2 /* interrupts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interrupts.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -66,9 +66,9 @@
 			files = (
 				07226B151DE7302E00496B69 /* debug.o in Frameworks */,
 				07226B1B1DE7307D00496B69 /* mem.o in Frameworks */,
-				07226B141DE7302E00496B69 /* disk.o in Frameworks */,
 				07226B1D1DE7311500496B69 /* usercode.o in Frameworks */,
 				07226B161DE7302E00496B69 /* console.o in Frameworks */,
+				07A978121DE9F99E00292D74 /* disk.o in Frameworks */,
 				07226B131DE7302E00496B69 /* hardware.o in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -79,6 +79,7 @@
 		079729891DD8A5F6009CB125 = {
 			isa = PBXGroup;
 			children = (
+				07A978111DE9F99E00292D74 /* disk.o */,
 				07226B0C1DE7302E00496B69 /* hardware_interface.h */,
 				07226B1E1DE7377200496B69 /* utlist.h */,
 				072FC12B1DE25B4E004CA607 /* uthash.h */,
@@ -97,7 +98,6 @@
 				07226B1C1DE7311500496B69 /* usercode.o */,
 				07226B0B1DE7302E00496B69 /* hardware.o */,
 				07226B181DE7307D00496B69 /* mem.o */,
-				07226B0D1DE7302E00496B69 /* disk.o */,
 				07226B0E1DE7302E00496B69 /* debug.o */,
 				07226B0F1DE7302E00496B69 /* console.o */,
 				079729AE1DD8A9D5009CB125 /* cs240.dsk */,
