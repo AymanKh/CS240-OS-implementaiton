@@ -68,7 +68,7 @@ struct physicalAddresesInMemoryNode {
 
 
 typedef struct _KeynameHash {
-    char *keynameH;
+    void *keynameH;
     int size;
     int mappedFlag;
     blockNode *blocksHead;
