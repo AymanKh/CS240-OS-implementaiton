@@ -44,7 +44,6 @@
 		07226B1E1DE7377200496B69 /* utlist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utlist.h; sourceTree = "<group>"; };
 		072FC1281DE241F3004CA607 /* BitMap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = BitMap.c; sourceTree = "<group>"; };
 		072FC1291DE241F3004CA607 /* BitMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BitMap.h; sourceTree = "<group>"; };
-		072FC12B1DE25B4E004CA607 /* uthash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = uthash.h; sourceTree = "<group>"; };
 		072FC12C1DE25C75004CA607 /* ObjectStore.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ObjectStore.c; sourceTree = "<group>"; };
 		072FC12D1DE25C75004CA607 /* ObjectStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectStore.h; sourceTree = "<group>"; };
 		074513DD1DE1E80800CD84E1 /* console_interface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = console_interface.c; sourceTree = "<group>"; };
@@ -55,6 +54,7 @@
 		07A9780E1DE8949A00292D74 /* HandleDisk.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = HandleDisk.c; sourceTree = "<group>"; };
 		07A9780F1DE8949A00292D74 /* HandleDisk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HandleDisk.h; sourceTree = "<group>"; };
 		07A978111DE9F99E00292D74 /* disk.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = disk.o; sourceTree = "<group>"; };
+		07DB83191DEB9B2000D63CDC /* uthash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uthash.h; sourceTree = "<group>"; };
 		07DC38241DDDF24A003B6AB2 /* interrupts.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = interrupts.c; sourceTree = "<group>"; };
 		07DC38251DDDF24A003B6AB2 /* interrupts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interrupts.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -79,10 +79,10 @@
 		079729891DD8A5F6009CB125 = {
 			isa = PBXGroup;
 			children = (
+				07DB83191DEB9B2000D63CDC /* uthash.h */,
 				07A978111DE9F99E00292D74 /* disk.o */,
 				07226B0C1DE7302E00496B69 /* hardware_interface.h */,
 				07226B1E1DE7377200496B69 /* utlist.h */,
-				072FC12B1DE25B4E004CA607 /* uthash.h */,
 				079729B21DD8AA5E009CB125 /* kernel.c */,
 				07226B0A1DE7302E00496B69 /* kernel.h */,
 				072FC12C1DE25C75004CA607 /* ObjectStore.c */,

@@ -68,7 +68,7 @@ struct physicalAddresesInMemoryNode {
 
 
 typedef struct _KeynameHash {
-    void *keynameH;
+    char *keynameH;
     int size;
     int mappedFlag;
     blockNode *blocksHead;
@@ -111,14 +111,25 @@ int freeBlocks = NO_OF_BLOCKS;
 // This structure will be used when calling actual reads to the disk
 typedef struct _cont {
     void (* func)();
-    int tid;
+    signed int tid;
     void *arg1;
     int arg2;
     UT_hash_handle hh;         /* makes this structure hashable */
 } cont;
 
+cont *hashTableTid = NULL;
+
+
 void readDiskWrapper(addressToReadNode *head, int index);
 void writeDiskWrapper(addressToReadNode *head, int index);
+
+
+extern int translateBitPositionToBlockNumberInDisk(int position);
+extern void* translateBitPositionToPageNumberInMemory(int position);
+extern int SearchForAvailableBit(int dest);
+extern void SetBits(int position,int dest); // set a bit to one
+extern void ClearBits(int position,int dest); // clear a bit (or multiple) upon deletion of a persistent object
+
 
 
 #endif /* ObjectStore_h */

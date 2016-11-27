@@ -26,5 +26,13 @@ extern int jiffies;
 //extern int nbytes;
 //extern void ClockInterrupt(int input);
 
+extern int CreatePersistentObject(char * keyname);
+extern void * MapPersistentObject(char * keyname, int offset, int size);
+extern int GetPersistentObjectSize(char * keyname);
+extern int UnMapPersistentObject(void * address);
+extern void logKeyNameHashTable();
+
+
+
 
 #endif /* kernel_h */

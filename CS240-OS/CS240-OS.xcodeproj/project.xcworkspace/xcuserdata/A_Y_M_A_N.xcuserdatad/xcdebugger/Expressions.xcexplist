@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "readDiskWrapper:ObjectStore.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "hashTableTid">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "writeDiskWrapper:ObjectStore.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "hashTableTid">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "UnMapPersistentObject:ObjectStore.c">
+      </ContextState>
+      <ContextState
+         contextName = "MapPersistentObject:ObjectStore.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "hashTableAddresses">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "DiskInterrupt:interrupts.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "hashTableTid">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "GetPersistentObjectSize:ObjectStore.c">
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>
