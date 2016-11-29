@@ -31,6 +31,10 @@ extern void * MapPersistentObject(char * keyname, int offset, int size);
 extern int GetPersistentObjectSize(char * keyname);
 extern int UnMapPersistentObject(void * address);
 extern void logKeyNameHashTable();
+extern int TruncatePersistentObject(char * keyname, int offset, int length);
+extern int DeletePersistentObject(char * keyname);
+
+
 
 
 

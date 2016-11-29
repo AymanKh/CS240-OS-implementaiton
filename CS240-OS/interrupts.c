@@ -107,7 +107,24 @@ void MachineCheckInterrupt(int input)
     shutdown_machine();
 }
 
-
+void TrapInterrupt(int input)
+{
+    int trapNo = machine_context.reg[11];
+    
+    switch(trapNo)
+    {
+        case TRAP_EXIT:
+            Exit();
+            break;
+        case TRAP_WRITE_CONSOLE:
+            WriteConsole((char *)machine_context.reg[12], (int)machine_context.reg[13]);
+            break;
+    }
+    
+    
+    
+    
+}
 
 
 

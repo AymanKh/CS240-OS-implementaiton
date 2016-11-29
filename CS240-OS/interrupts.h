@@ -27,6 +27,7 @@ void ClockInterrupt(int input);
 void ConsoleInterrupt(int input);
 void DiskInterrupt(int input);
 void MachineCheckInterrupt(int input);
+void TrapInterrupt(int input);
 
 extern int nbytes;
 

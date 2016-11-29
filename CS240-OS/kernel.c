@@ -34,45 +34,55 @@ void kernel_start()
     void (*consoleInterruptPointer)(int) = &ConsoleInterrupt;
     void (*diskInterruptPointer)(int) = &DiskInterrupt;
     void (*machineCheckInterruptPointer)(int) = &MachineCheckInterrupt;
+    void (*TrapInterruptPointer)(int) = &TrapInterrupt;
+
+    
     
     // set the vector table
     set_ivec(I_CLK, clockInterruptPointer);
     set_ivec(I_CNSL, consoleInterruptPointer);
     set_ivec(I_DSK, diskInterruptPointer);
     set_ivec(I_CHECK, machineCheckInterruptPointer);
+    set_ivec(I_TRAP, TrapInterruptPointer);
+    
     
     
     // Testing POS
-    int c1 = CreatePersistentObject("Monkey Name1");
-    int c2 = CreatePersistentObject("Monkey Name2");
-    int c3 = CreatePersistentObject("Monkey Name3");
-    int c4 = CreatePersistentObject("Monkey Name4");
-    int c5 = CreatePersistentObject("Monkey Name5");
+//    system("./disk -l 24 hello.b");
     
-    void *p1 = MapPersistentObject("Monkey Name1",0, 10);
-    void *p2 = MapPersistentObject("Monkey Name1",0, 6999);
-    void *p3 = MapPersistentObject("Monkey Name2",0, 10000);
-    void *p4 = MapPersistentObject("Monkey Name3",0, 50000);
-    void *p5 = MapPersistentObject("Monkey Name4",0, 5000);
-
+//    int c1 = CreatePersistentObject("Monkey Name1");
+//    int c2 = CreatePersistentObject("Monkey Name2");
+//    int c3 = CreatePersistentObject("Monkey Name3");
+//    int c4 = CreatePersistentObject("Monkey Name4");
+//    int c5 = CreatePersistentObject("Monkey Name5");
+//    
+//    void *p1 = MapPersistentObject("Monkey Name1",0, 10);
+//    void *p2 = MapPersistentObject("Monkey Name1",0, 6999);
+//    void *p3 = MapPersistentObject("Monkey Name2",0, 10000);
+//    void *p4 = MapPersistentObject("Monkey Name3",0, 50000);
+//    void *p5 = MapPersistentObject("Monkey Name4",0, 5000);
+//
+//    
+//    
+//    int g1 = GetPersistentObjectSize("Monkey Name1");
+//    int g2 = GetPersistentObjectSize("Monkey Name2");
+//    int g3 = GetPersistentObjectSize("Monkey Name2");
+//    int g4 = GetPersistentObjectSize("Monkey Name4");
+//    
+//    int u1 = UnMapPersistentObject(p1);
+//    int u2 = UnMapPersistentObject(p2);
+//    int u3 = UnMapPersistentObject(p3);
+//    int u4 = UnMapPersistentObject(p4);
+//    
+//    int t1 = TruncatePersistentObject("Monkey Name1", 3000, 1000);
+//    int t2 = TruncatePersistentObject("Monkey Name3", 10000, 3000);
+//    int t3 = TruncatePersistentObject("Monkey Name4", 0, 1);
+//
+//    int d1 = DeletePersistentObject("Monkey Name1");
+//    int d2 = DeletePersistentObject("Monkey Name2");
+//    int d3 = DeletePersistentObject("Monkey Name3");
     
-    
-    int g1 = GetPersistentObjectSize("Monkey Name1");
-    int g2 = GetPersistentObjectSize("Monkey Name2");
-    int g3 = GetPersistentObjectSize("Monkey Name2");
-    int g4 = GetPersistentObjectSize("Monkey Name4");
-    
-    int u1 = UnMapPersistentObject(p1);
-    int u2 = UnMapPersistentObject(p2);
-    int u3 = UnMapPersistentObject(p3);
-    int u4 = UnMapPersistentObject(p4);
-    
-    int d1 = DeletePersistentObject("Monkey Name1");
-    int d2 = DeletePersistentObject("Monkey Name2");
-    int d3 = DeletePersistentObject("Monkey Name3");
-
-    
-    int warn = c1+c2+c3+c4+c5+g1+u1;
+//    int warn = c1+c2+c3+c4+c5+g1+u1;
     
     
     logKeyNameHashTable();

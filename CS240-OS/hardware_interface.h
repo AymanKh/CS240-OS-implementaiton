@@ -27,7 +27,7 @@ typedef union {
         int valid:1;
         int swapped:1;
         int shared:1;
-        int unused:3;
+        int unused:1;
         unsigned address:20;
     }pte;
     int pte_;
