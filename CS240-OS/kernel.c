@@ -7,18 +7,12 @@
 //
 
 #include "kernel.h"
+#include <assert.h>
 
-void * returnP()
-{
-    void *addr2 = (void *) (1<<21);
-    void * temp2 = map_physical_page(addr2);
-    
-    return temp2;
-}
 
 void kernel_start()
 {
-    //    set_debug_mode(DEBUG_ALL);
+//    set_debug_mode(DEBUG_ALL);
     reset_debug_mode();
     start_console();
     initialize_memory(); // Keep track of available pages in main memory
@@ -45,10 +39,20 @@ void kernel_start()
     set_ivec(I_CHECK, machineCheckInterruptPointer);
     set_ivec(I_TRAP, TrapInterruptPointer);
     
+    // Test running hello.b
+    void *addr2 = translateBitPositionToPageNumberInMemory(SearchForAvailableBit(Memory));
+    SetBits(SearchForAvailableBit(Memory),Memory);
+    
+    
+    cont *newCont = malloc(sizeof(*newCont));
+    newCont->func = &runProcess;
+    newCont->tid = read_disk(0, 1, addr2);
+    HASH_ADD_INT(hashTableTid, tid, newCont);
+    
+
     
     
     // Testing POS
-//    system("./disk -l 24 hello.b");
     
 //    int c1 = CreatePersistentObject("Monkey Name1");
 //    int c2 = CreatePersistentObject("Monkey Name2");
@@ -85,7 +89,7 @@ void kernel_start()
 //    int warn = c1+c2+c3+c4+c5+g1+u1;
     
     
-    logKeyNameHashTable();
+//    logKeyNameHashTable();
     
     halt();
     //        shutdown_machine();

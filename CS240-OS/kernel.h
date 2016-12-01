@@ -15,6 +15,7 @@
 #include "interrupts.h"
 #include "hardware_interface.h"
 #include "console_interface.h"
+#include "process.h"
 //#include "BitMap.h"
 
 
@@ -33,9 +34,7 @@ extern int UnMapPersistentObject(void * address);
 extern void logKeyNameHashTable();
 extern int TruncatePersistentObject(char * keyname, int offset, int length);
 extern int DeletePersistentObject(char * keyname);
-
-
-
+extern void runProcess();
 
 
 

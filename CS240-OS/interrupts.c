@@ -87,15 +87,17 @@ void DiskInterrupt(int tid)
     cont *test;
     HASH_FIND_INT(hashTableTid, &tid, test);
     
-    
     if (test->func != &halt)
     {
-        (test->func)(test->arg1, test->arg2);
+//        (test->func)(test->arg1, test->arg2);
+        (test->func)();
     }
     else
     {
         (test->func)();
     }
+    
+    iret();
 
 }
 
@@ -109,7 +111,12 @@ void MachineCheckInterrupt(int input)
 
 void TrapInterrupt(int input)
 {
+
     int trapNo = machine_context.reg[11];
+    
+    char s[50];
+    sprintf(s,"Interrupt: Trap Interrupt! Trap Number = %d \n",trapNo);
+    write_console((unsigned) strlen(s), s);
     
     switch(trapNo)
     {
@@ -120,9 +127,6 @@ void TrapInterrupt(int input)
             WriteConsole((char *)machine_context.reg[12], (int)machine_context.reg[13]);
             break;
     }
-    
-    
-    
     
 }
 

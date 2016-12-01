@@ -11,13 +11,15 @@
 
 /* Memory interface */
 #define PAGE_SIZE           4096                // Page is 4KB
+#define PAGE_SIZE_LOG       12                  // Useful for shifting if you need to
 #define KERNEL_MEM_LIMIT    (1 << 20)           // Kernel code and libraries loads in first megabyte of memory, don't overwrite!!!
+#define MEM_SIZE            (32 << 20)          // Memory size
 extern void set_ptbr(void * physical_addr);     // Sets the Page Table Base Register to the root of the page table
 extern int  get_memory_size(void);              // Returns the amount of physical memory available
 extern void initialize_memory(void);            // Starts the memory intialization, set on virtual memory
 extern void * map_physical_page(void * physical_addr);          // Map a physical page starting at physical_addr into kernel
 extern void * map_page_table_node(void * physical_addr);        // This is just a call to map_physical_page where the actual
-                                                              // mapping takes place
+// mapping takes place
 typedef union {
     struct {
         int read:1;
@@ -27,11 +29,20 @@ typedef union {
         int valid:1;
         int swapped:1;
         int shared:1;
-        int unused:1;
+        int unused:5;
         unsigned address:20;
     }pte;
     int pte_;
 }pte;
+
+typedef union {
+    struct {
+        unsigned offset:12;
+        unsigned interior_level:10;
+        unsigned root_level:10;
+    } composite;
+    unsigned address;
+}v_address;
 
 #define MEMORY_READ         0               // Access type, passed if there is an exception in memory access
 #define MEMORY_WRITE        1               // Access type, passed if there is an exception in memory access
@@ -64,7 +75,7 @@ extern void halt();             // the halt instruction: Hardware stops in low-e
 extern void iret();             // hardware switches to user mode, starts running at the location defined by machine_context
 
 extern void set_ivec(unsigned num, void (*handler)(int));
-                                // sets entry "num" in interrupt vector to the address of the handling function
+// sets entry "num" in interrupt vector to the address of the handling function
 extern void shutdown_machine(); // Tell the hardware to shutdown
 
 #define IVEC_SIZE   8
@@ -164,26 +175,36 @@ extern void reset_debug_mode();
 /* Exceptions interface */
 /* e0 */
 #define EXCEPTION_BAD_ADDRESS           0x01    // Bad memory access in user mode
+// a[0] virtual address causing problem, a[1]: 0 for read access, 1 otherwise
 #define EXCEPTION_ILLEGAL_INSTRUCTION   0x02    // Illegal instruction in user mode
+// a[] depend on the values of e1, see below
 /* e1 */
 #define EXCEPTION_IRET                  0x10    // iret called in user mode
-#define EXCEPTION_HALT                  0x11    // halt called in supervisor mode
+#define EXCEPTION_HALT                  0x11    // halt called in user mode
 #define EXCEPTION_DISK_READ             0x12    // Trying to access disk directly from user mode
 #define EXCEPTION_DISK_WRITE            0x13    // Trying to access disk directly from user mode
 #define EXCEPTION_CONSOLE_WRITE         0x14    // Trying to access console directly from user mode
 #define EXCEPTION_START_MEMORY          0x15    // Trying to start memory from user mode
+// No arguments
 #define EXCEPTION_START_DISK            0x16    // Trying to start disk from user mode
 #define EXCEPTION_START_CONSOLE         0x17    // Trying to start console directly from user mode
 #define EXCEPTION_IVEC                  0x18    // Attempt to manipulate the interrupt vector directly from user mode
+// a[0] contains # of interrupt entry in vector, a[1] function address
 #define EXCEPTION_BASE_PAGE_TABLE_REG   0x19    // Attempt to manipulate the base page table register from user mode
+// a[0] the physical address to be loaded into the ptbr
+#define EXCEPTION_ILLEGAL               0x1a    // Exception due to executing an invalid instruction in user mode
+// a[0] contains the offending instruction
 #define EXCEPTION_MAP_MEMORY            0x20    // Attempt to access the MMU directly from user mode
+// a[0] contains the physical address to be mapped
 #define EXCEPTION_GET_MEMORY_SIZE       0x21    // Attempt to read MMU register directly from user mode
+// No arguments
 #define EXCEPTION_SHUTDOWN              0x22    // Attempt to shutdown the machine from user mode while bypassing OS
+//
 
 typedef struct {
     unsigned long long   e0;              // Exception type, see the two definitions above
     unsigned long long   e1;              // Further qualifying information about the exception type
-    unsigned long long   a[4];            // Arguments to operation if any (up to 4)
+    unsigned long long   a[4];            // Arguments to operation if any (up to 4), refer to each exception for definition
 } exception_context;
 
 extern exception_context e_context;
