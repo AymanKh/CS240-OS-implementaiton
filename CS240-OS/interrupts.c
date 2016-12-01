@@ -113,10 +113,14 @@ void TrapInterrupt(int input)
 {
 
     int trapNo = machine_context.reg[11];
+    unsigned va = machine_context.reg[12];
+    unsigned vaint = machine_context.reg[13];
     
     char s[50];
     sprintf(s,"Interrupt: Trap Interrupt! Trap Number = %d \n",trapNo);
     write_console((unsigned) strlen(s), s);
+    char t[50];
+
     
     switch(trapNo)
     {
@@ -124,13 +128,45 @@ void TrapInterrupt(int input)
             Exit();
             break;
         case TRAP_WRITE_CONSOLE:
-            WriteConsole((char *)machine_context.reg[12], (int)machine_context.reg[13]);
+//            WriteConsole((char *)machine_context.reg[12], (int)machine_context.reg[13]);
+            WriteConsole((char *)_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12]), (int)machine_context.reg[13]);
+
+            
             break;
     }
     
+    iret();
 }
 
-
+unsigned _TranslateVirtualAddressToPhysicalAddress(unsigned va)
+{
+    /*
+     1. need the following:
+        - the virtual address 'given'
+        - the root page table of the currently running process
+     */
+    
+    unsigned activeRootPagePhysAddre = currentPCB->rootPagePhysAddress;
+    
+    v_address virtualAddress;
+    virtualAddress.composite.root_level = (va >> 22);   // = 0b00000000001111111111000000000000
+    virtualAddress.composite.interior_level = (va  & 0x003ff000);
+    virtualAddress.composite.interior_level = (virtualAddress.composite.interior_level >> 12);
+    virtualAddress.composite.offset = (va & 0x00000fff);
+    
+    pte *mappedRootPage = (pte*)map_physical_page(activeRootPagePhysAddre);
+    pte *pteFirstLevel = malloc(sizeof(*pteFirstLevel));
+    memcpy((void*)pteFirstLevel, (void*)((void*)mappedRootPage+virtualAddress.composite.root_level*sizeof(pte)), sizeof(pte));
+    pteFirstLevel->pte_ &= 0xfffff000;
+    
+    pte *mappedL1Page = (pte*)map_physical_page(pteFirstLevel->pte_);
+    pte *pteSecondLevel = malloc(sizeof(*pteSecondLevel));
+    memcpy((void*)pteSecondLevel, (void*)((void*)mappedL1Page+virtualAddress.composite.interior_level*sizeof(pte)), sizeof(pte));
+    pteSecondLevel->pte_ &= 0xfffff000;
+    
+    return (pteSecondLevel->pte_ + virtualAddress.composite.offset);
+    
+}
 
 
 

@@ -14,7 +14,8 @@ int nbytes;
 
 int WriteConsole(char *buffer, int nbytes)
 {
-    write_console(nbytes, buffer);
+    void *p = map_physical_page((void*)buffer);
+    write_console(nbytes, p);
     
     return 0;
 }

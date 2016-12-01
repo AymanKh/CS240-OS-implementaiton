@@ -17,8 +17,7 @@ void kernel_start()
     start_console();
     initialize_memory(); // Keep track of available pages in main memory
     start_disk();
-    
-    
+        
     char a[80];
     sprintf(a, "Hello World %d \n",jiffies);
     write_console((unsigned) strlen(a), a);

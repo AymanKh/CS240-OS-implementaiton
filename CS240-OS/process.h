@@ -35,7 +35,8 @@ typedef struct PCB {
     char		name[80];	// Process name
     int	L1_pagetable[MEM_L1TABLE_SIZE]; // Statically allocated page table
     int npages;
-     int ptbr;
+    int ptbr;
+    unsigned rootPagePhysAddress;
     
     Link		*l;		// Used for keeping PCB in queues
 } PCB;

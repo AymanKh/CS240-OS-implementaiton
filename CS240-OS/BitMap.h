@@ -10,7 +10,7 @@
 #define BitMap_h
 
 #include <stdio.h>
-//#include "ObjectStore.h"
+#include "process.h"
 
 #define MAX_LLU 18446744073709551615LLU
 #define Reserved_for_OS 256 // number of blocks in main memory reserved for kernel
@@ -37,5 +37,7 @@ void logBitMap();
 
 extern int freeBlocks;
 extern int usedBlocks;
+extern PCB *currentPCB;
+
 
 #endif /* BitMap_h */

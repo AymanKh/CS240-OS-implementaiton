@@ -15,6 +15,7 @@
 #include "hardware_interface.h"
 #include "console_interface.h"
 #include "uthash.h"
+#include "process.h"
 //#include "HandleDisk.h"
 //#include "BitMap.h"
 
@@ -28,6 +29,7 @@ void ConsoleInterrupt(int input);
 void DiskInterrupt(int input);
 void MachineCheckInterrupt(int input);
 void TrapInterrupt(int input);
+unsigned _TranslateVirtualAddressToPhysicalAddress(unsigned va);
 
 extern int nbytes;
 
@@ -41,6 +43,7 @@ typedef struct _cont {
 //
 
 extern cont *hashTableTid;
+extern PCB *currentPCB;
 
 //extern char consoleInput[100];
 
