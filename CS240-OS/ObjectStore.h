@@ -13,6 +13,9 @@
 #include "uthash.h"
 #include "utlist.h"
 #include "hardware_interface.h"
+#include "process.h"
+//#include "defines.h"
+
 //#include "BitMap.h"
 
 #define BLOCK_SIZE 8
@@ -130,6 +133,7 @@ extern int SearchForAvailableBit(int dest);
 extern void SetBits(int position,int dest); // set a bit to one
 extern void ClearBits(int position,int dest); // clear a bit (or multiple) upon deletion of a persistent object
 
-
+extern PCB *currentPCB;
+extern int test;
 
 #endif /* ObjectStore_h */

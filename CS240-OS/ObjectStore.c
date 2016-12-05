@@ -25,15 +25,7 @@ int CreatePersistentObject(char *keyname)
     hashit->size = 0;
     hashit->blocksHead = NULL;
     hashit->mappedFlag = 0;
-//       hashit->keynameH = malloc(sizeof(*(hashit->keynameH)));
 
-//    strcpy(hashit->keynameH, keyname);
-//    keynameHash *hashit = malloc(sizeof(*hashit));
-//    strncpy(hashit->keynameH, keyname,strlen(keyname)+1);
-//    hashit->size = 0;
-//    hashit->blocksHead = NULL;
-//    hashit->mappedFlag = 0;
-    
     
     /*
      1. find the value, from bitMap
@@ -110,6 +102,12 @@ void * MapPersistentObject(char * keyname, int offset, int size)
      5. if request blocks is more than the previously assigned data in disk, then start allocating new disk blocks
      5a. append new disk blocks to the keyname
      6. return the first assigned virtual address
+     */
+    
+    /* v2
+     1. use current ptbr to get to the current process table
+     2. 
+     
      */
     
     
@@ -278,6 +276,8 @@ void * MapPersistentObject(char * keyname, int offset, int size)
     
     // do the actual reads to disk
     readDiskWrapper(adressesToReadHead, 0);
+    
+//    currentPCB->ptbr;
     
     
     
@@ -577,7 +577,7 @@ void initilizeKeyNameHashTable(char *logName)
     int size = 0;
     int blockPosition = 0;
     
-    
+//    test = 77;
     
     while (!feof (fp))
     {

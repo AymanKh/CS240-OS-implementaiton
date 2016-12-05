@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "Queue.h"
 #include "hardware_interface.h"
+//#include "defines.h"
 
 
 #define MEM_L1TABLE_SIZE 1024
@@ -44,10 +45,14 @@ typedef struct PCB {
 extern PCB	*currentPCB;
 extern int Memory;
 extern int Disk;
+extern int test;
+
 
 extern int SearchForAvailableBit(int dest);
 extern void SetBits(int position,int dest); // set a bit to one
 extern void* translateBitPositionToPageNumberInMemory(int position);
+
+//extern keynameHash *hashTable;
 
 
 

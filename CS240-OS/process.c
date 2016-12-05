@@ -32,12 +32,17 @@ void runProcess()
      12. iret()
      */
     
+//    int x = test;
+    
     char a[60];
     sprintf(a,"in runProcess\n");
     write_console((unsigned)strlen(a),"in runProcess\n");
 
     
     // TODO: hard coded for now, replace (1<<20) with a page in memory
+    
+    
+    
     
     unsigned hardCoded = (unsigned)(1<<20);
     header * vaddr = (header *)map_physical_page((void * )hardCoded);
@@ -75,15 +80,15 @@ void runProcess()
     SetBits(memBlockForData, Memory);
     unsigned dataAddr = (unsigned) translateBitPositionToPageNumberInMemory(memBlockForData);
     
-//    // 2nd level page for the stack
-//    int memBlockForStack = SearchForAvailableBit(Memory);
-//    SetBits(memBlockForStack, Memory);
-//    unsigned stackAddr = (unsigned) translateBitPositionToPageNumberInMemory(memBlockForStack);
-//    
-//    //Actual Stack Page
-//    int memBlockForActualStack = SearchForAvailableBit(Memory);
-//    SetBits(memBlockForActualStack, Memory);
-//    unsigned stackAddrActual = (unsigned) translateBitPositionToPageNumberInMemory(memBlockForActualStack);
+    // 2nd level page for the stack
+    int memBlockForStack = SearchForAvailableBit(Memory);
+    SetBits(memBlockForStack, Memory);
+    unsigned stackAddr = (unsigned) translateBitPositionToPageNumberInMemory(memBlockForStack);
+    
+    //Actual Stack Page
+    int memBlockForActualStack = SearchForAvailableBit(Memory);
+    SetBits(memBlockForActualStack, Memory);
+    unsigned stackAddrActual = (unsigned) translateBitPositionToPageNumberInMemory(memBlockForActualStack);
     
     // 4. Allocate memory for the root page
     int memBlockForRootPage = SearchForAvailableBit(Memory);
@@ -103,11 +108,11 @@ void runProcess()
     vAddrDataSegment.composite.interior_level = (vAddrDataSegment.composite.interior_level >> 12);
     vAddrDataSegment.composite.offset = (data_segment_start  & 0b00000000000000000000111111111111);
     
-//    v_address vAddrStackSegment;
-//    vAddrStackSegment.composite.root_level = (stack_segment_start >> 22);   // = 0b00000000001111111111000000000000
-//    vAddrStackSegment.composite.interior_level = (stack_segment_start  & 0x003ff000 );
-//    vAddrStackSegment.composite.interior_level = (vAddrStackSegment.composite.interior_level >> 12);
-//    vAddrStackSegment.composite.offset = (stack_segment_start  & 0b00000000000000000000111111111111);
+    v_address vAddrStackSegment;
+    vAddrStackSegment.composite.root_level = (stack_segment_start >> 22);   // = 0b00000000001111111111000000000000
+    vAddrStackSegment.composite.interior_level = (stack_segment_start  & 0x003ff000 );
+    vAddrStackSegment.composite.interior_level = (vAddrStackSegment.composite.interior_level >> 12);
+    vAddrStackSegment.composite.offset = (stack_segment_start  & 0b00000000000000000000111111111111);
     
     
     // 6. populate PTEs for the 2nd level pages with control bits
@@ -120,9 +125,9 @@ void runProcess()
     dataPTE.pte_ = (int)dataAddrContent & (int)(0xfffff000);
     dataPTE.pte_ |= (0x00000015); // read, valid, *write
     
-//    pte stackPTE;
-//    stackPTE.pte_ = (int)stackAddrActual & (int)(0xfffff000);
-//    stackPTE.pte_ |= (0x00000013); // read, write, valid
+    pte stackPTE;
+    stackPTE.pte_ = (int)stackAddrActual & (int)(0xfffff000);
+    stackPTE.pte_ |= (0x00000013); // read, write, valid
 
     
     
@@ -133,8 +138,8 @@ void runProcess()
     pte *dataMappedPage = (pte*)map_physical_page((void*) dataAddr);
     dataMappedPage[vAddrDataSegment.composite.interior_level].pte_ = dataPTE.pte_;
     
-//    pte *stackMappedPage = (pte*)map_physical_page((void*) stackAddr);
-//    stackMappedPage[vAddrStackSegment.composite.interior_level] = stackPTE;
+    pte *stackMappedPage = (pte*)map_physical_page((void*) stackAddr);
+    stackMappedPage[vAddrStackSegment.composite.interior_level] = stackPTE;
     
     // 7. and 8. write PTEs to the first root level
     pte *rootMappedPage = (pte*)map_physical_page((void*) rootPageAddr);
@@ -165,6 +170,8 @@ void runProcess()
     PCB *runningPCB = malloc(sizeof(*runningPCB));
     runningPCB->rootPagePhysAddress = rootPageAddr;
     currentPCB = runningPCB;
+    
+//    return 0;
 
     
 }
@@ -184,12 +191,12 @@ void ProcessModuleInit()
     //    currentPCB = NULL;
 }
 
-int CreateProcess(char * executable)
-{
-    
-    
-    return 0;
-}
+//int CreateProcess(char * executable)
+//{
+//    
+//    
+//    return 0;
+//}
 
 
 void Exit()

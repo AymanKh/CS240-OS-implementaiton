@@ -16,6 +16,7 @@
 #include "hardware_interface.h"
 #include "console_interface.h"
 #include "process.h"
+//#include "ObjectStore.h"
 //#include "BitMap.h"
 
 
@@ -35,6 +36,8 @@ extern void logKeyNameHashTable();
 extern int TruncatePersistentObject(char * keyname, int offset, int length);
 extern int DeletePersistentObject(char * keyname);
 extern void runProcess();
+
+//extern keynameHash *hashTable;
 
 
 

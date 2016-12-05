@@ -38,6 +38,13 @@ void kernel_start()
     set_ivec(I_CHECK, machineCheckInterruptPointer);
     set_ivec(I_TRAP, TrapInterruptPointer);
     
+    
+//    initilizeKeyNameHashTable("HashTableKeyNameLog");
+    
+//    CreateProcess("hello.b");
+    
+//    int x = HASH_COUNT(hashTable);
+    
     // Test running hello.b
     void *addr2 = translateBitPositionToPageNumberInMemory(SearchForAvailableBit(Memory));
     SetBits(SearchForAvailableBit(Memory),Memory);
@@ -88,7 +95,7 @@ void kernel_start()
 //    int warn = c1+c2+c3+c4+c5+g1+u1;
     
     
-//    logKeyNameHashTable();
+    logKeyNameHashTable();
     
     halt();
     //        shutdown_machine();

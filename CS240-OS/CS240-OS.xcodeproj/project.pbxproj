@@ -50,6 +50,7 @@
 		072FC12D1DE25C75004CA607 /* ObjectStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjectStore.h; sourceTree = "<group>"; };
 		074513DD1DE1E80800CD84E1 /* console_interface.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = console_interface.c; sourceTree = "<group>"; };
 		074513DE1DE1E80800CD84E1 /* console_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = console_interface.h; sourceTree = "<group>"; };
+		0746E4B81DF5EB0E00837129 /* defines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
 		079729921DD8A5F6009CB125 /* CS240-OS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "CS240-OS"; sourceTree = BUILT_PRODUCTS_DIR; };
 		079729AD1DD8A9D5009CB125 /* en */ = {isa = PBXFileReference; lastKnownFileType = file; name = en; path = en.lproj/cs240.dsk; sourceTree = "<group>"; };
 		079729B21DD8AA5E009CB125 /* kernel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kernel.c; sourceTree = "<group>"; };
@@ -89,6 +90,7 @@
 			isa = PBXGroup;
 			children = (
 				07226B0C1DE7302E00496B69 /* hardware_interface.h */,
+				0746E4B81DF5EB0E00837129 /* defines.h */,
 				07DB83191DEB9B2000D63CDC /* uthash.h */,
 				07226B1E1DE7377200496B69 /* utlist.h */,
 				079729B21DD8AA5E009CB125 /* kernel.c */,
