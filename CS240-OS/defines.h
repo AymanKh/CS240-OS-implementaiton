@@ -12,6 +12,7 @@
 #include "uthash.h"
 
 
+
 typedef struct blockNode blockNode;
 
 struct blockNode {
@@ -36,7 +37,9 @@ typedef struct _KeynameHash {
     UT_hash_handle hh;         /* makes this structure hashable */
 } keynameHash ;
 
-int test;
+//extern int test77;
+extern keynameHash *hashTable;
+extern cont *hashTableTid;
 
 
 

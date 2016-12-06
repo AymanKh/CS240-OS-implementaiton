@@ -7,20 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0700BB291DF7643300AD59DD /* usercode.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 0700BB211DF7643300AD59DD /* usercode.o */; };
+		0700BB2A1DF7643300AD59DD /* standalone.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 0700BB221DF7643300AD59DD /* standalone.o */; };
+		0700BB2B1DF7643300AD59DD /* mem.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 0700BB231DF7643300AD59DD /* mem.o */; };
+		0700BB2C1DF7643300AD59DD /* hardware.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 0700BB241DF7643300AD59DD /* hardware.o */; };
+		0700BB2D1DF7643300AD59DD /* hardware_interface.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 0700BB251DF7643300AD59DD /* hardware_interface.o */; };
+		0700BB2E1DF7643300AD59DD /* disk.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 0700BB261DF7643300AD59DD /* disk.o */; };
+		0700BB2F1DF7643300AD59DD /* debug.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 0700BB271DF7643300AD59DD /* debug.o */; };
+		0700BB301DF7643300AD59DD /* console.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 0700BB281DF7643300AD59DD /* console.o */; };
 		072B0A4C1DECC0D500E8C4B0 /* process.c in Sources */ = {isa = PBXBuildFile; fileRef = 072B0A4A1DECC0D500E8C4B0 /* process.c */; };
 		072B0A4F1DECC25000E8C4B0 /* Queue.c in Sources */ = {isa = PBXBuildFile; fileRef = 072B0A4D1DECC25000E8C4B0 /* Queue.c */; };
 		072FC12A1DE241F3004CA607 /* BitMap.c in Sources */ = {isa = PBXBuildFile; fileRef = 072FC1281DE241F3004CA607 /* BitMap.c */; };
 		072FC12E1DE25C75004CA607 /* ObjectStore.c in Sources */ = {isa = PBXBuildFile; fileRef = 072FC12C1DE25C75004CA607 /* ObjectStore.c */; };
 		074513DF1DE1E80800CD84E1 /* console_interface.c in Sources */ = {isa = PBXBuildFile; fileRef = 074513DD1DE1E80800CD84E1 /* console_interface.c */; };
 		079729BA1DD8AA5E009CB125 /* kernel.c in Sources */ = {isa = PBXBuildFile; fileRef = 079729B21DD8AA5E009CB125 /* kernel.c */; };
-		07C1CA8B1DF06B140035F00B /* usercode.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C1CA831DF06B140035F00B /* usercode.o */; };
-		07C1CA8D1DF06B140035F00B /* mem.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C1CA851DF06B140035F00B /* mem.o */; };
-		07C1CA8E1DF06B140035F00B /* hardware.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C1CA861DF06B140035F00B /* hardware.o */; };
-		07C1CA8F1DF06B140035F00B /* hardware_interface.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C1CA871DF06B140035F00B /* hardware_interface.o */; };
-		07C1CA901DF06B140035F00B /* disk.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C1CA881DF06B140035F00B /* disk.o */; };
-		07C1CA911DF06B140035F00B /* debug.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C1CA891DF06B140035F00B /* debug.o */; };
-		07C1CA921DF06B140035F00B /* console.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C1CA8A1DF06B140035F00B /* console.o */; };
-		07C1CA941DF07F7E0035F00B /* standalone.o in Frameworks */ = {isa = PBXBuildFile; fileRef = 07C1CA931DF07F7E0035F00B /* standalone.o */; };
 		07DC38261DDDF24A003B6AB2 /* interrupts.c in Sources */ = {isa = PBXBuildFile; fileRef = 07DC38241DDDF24A003B6AB2 /* interrupts.c */; };
 /* End PBXBuildFile section */
 
@@ -37,6 +37,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0700BB211DF7643300AD59DD /* usercode.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = usercode.o; sourceTree = "<group>"; };
+		0700BB221DF7643300AD59DD /* standalone.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = standalone.o; sourceTree = "<group>"; };
+		0700BB231DF7643300AD59DD /* mem.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = mem.o; sourceTree = "<group>"; };
+		0700BB241DF7643300AD59DD /* hardware.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = hardware.o; sourceTree = "<group>"; };
+		0700BB251DF7643300AD59DD /* hardware_interface.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = hardware_interface.o; sourceTree = "<group>"; };
+		0700BB261DF7643300AD59DD /* disk.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = disk.o; sourceTree = "<group>"; };
+		0700BB271DF7643300AD59DD /* debug.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = debug.o; sourceTree = "<group>"; };
+		0700BB281DF7643300AD59DD /* console.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = console.o; sourceTree = "<group>"; };
 		07226B0A1DE7302E00496B69 /* kernel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kernel.h; sourceTree = "<group>"; };
 		07226B0C1DE7302E00496B69 /* hardware_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hardware_interface.h; sourceTree = "<group>"; };
 		07226B1E1DE7377200496B69 /* utlist.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utlist.h; sourceTree = "<group>"; };
@@ -54,14 +62,6 @@
 		079729921DD8A5F6009CB125 /* CS240-OS */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "CS240-OS"; sourceTree = BUILT_PRODUCTS_DIR; };
 		079729AD1DD8A9D5009CB125 /* en */ = {isa = PBXFileReference; lastKnownFileType = file; name = en; path = en.lproj/cs240.dsk; sourceTree = "<group>"; };
 		079729B21DD8AA5E009CB125 /* kernel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kernel.c; sourceTree = "<group>"; };
-		07C1CA831DF06B140035F00B /* usercode.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = usercode.o; sourceTree = "<group>"; };
-		07C1CA851DF06B140035F00B /* mem.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = mem.o; sourceTree = "<group>"; };
-		07C1CA861DF06B140035F00B /* hardware.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = hardware.o; sourceTree = "<group>"; };
-		07C1CA871DF06B140035F00B /* hardware_interface.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = hardware_interface.o; sourceTree = "<group>"; };
-		07C1CA881DF06B140035F00B /* disk.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = disk.o; sourceTree = "<group>"; };
-		07C1CA891DF06B140035F00B /* debug.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = debug.o; sourceTree = "<group>"; };
-		07C1CA8A1DF06B140035F00B /* console.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = console.o; sourceTree = "<group>"; };
-		07C1CA931DF07F7E0035F00B /* standalone.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = standalone.o; sourceTree = "<group>"; };
 		07DB83191DEB9B2000D63CDC /* uthash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uthash.h; sourceTree = "<group>"; };
 		07DC38241DDDF24A003B6AB2 /* interrupts.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = interrupts.c; sourceTree = "<group>"; };
 		07DC38251DDDF24A003B6AB2 /* interrupts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interrupts.h; sourceTree = "<group>"; };
@@ -72,14 +72,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				07C1CA8D1DF06B140035F00B /* mem.o in Frameworks */,
-				07C1CA921DF06B140035F00B /* console.o in Frameworks */,
-				07C1CA941DF07F7E0035F00B /* standalone.o in Frameworks */,
-				07C1CA8E1DF06B140035F00B /* hardware.o in Frameworks */,
-				07C1CA911DF06B140035F00B /* debug.o in Frameworks */,
-				07C1CA8F1DF06B140035F00B /* hardware_interface.o in Frameworks */,
-				07C1CA901DF06B140035F00B /* disk.o in Frameworks */,
-				07C1CA8B1DF06B140035F00B /* usercode.o in Frameworks */,
+				0700BB2B1DF7643300AD59DD /* mem.o in Frameworks */,
+				0700BB301DF7643300AD59DD /* console.o in Frameworks */,
+				0700BB2C1DF7643300AD59DD /* hardware.o in Frameworks */,
+				0700BB2F1DF7643300AD59DD /* debug.o in Frameworks */,
+				0700BB2D1DF7643300AD59DD /* hardware_interface.o in Frameworks */,
+				0700BB2A1DF7643300AD59DD /* standalone.o in Frameworks */,
+				0700BB2E1DF7643300AD59DD /* disk.o in Frameworks */,
+				0700BB291DF7643300AD59DD /* usercode.o in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,8 +89,8 @@
 		079729891DD8A5F6009CB125 = {
 			isa = PBXGroup;
 			children = (
-				07226B0C1DE7302E00496B69 /* hardware_interface.h */,
 				0746E4B81DF5EB0E00837129 /* defines.h */,
+				07226B0C1DE7302E00496B69 /* hardware_interface.h */,
 				07DB83191DEB9B2000D63CDC /* uthash.h */,
 				07226B1E1DE7377200496B69 /* utlist.h */,
 				079729B21DD8AA5E009CB125 /* kernel.c */,
@@ -107,14 +107,14 @@
 				07DC38251DDDF24A003B6AB2 /* interrupts.h */,
 				074513DD1DE1E80800CD84E1 /* console_interface.c */,
 				074513DE1DE1E80800CD84E1 /* console_interface.h */,
-				07C1CA831DF06B140035F00B /* usercode.o */,
-				07C1CA851DF06B140035F00B /* mem.o */,
-				07C1CA861DF06B140035F00B /* hardware.o */,
-				07C1CA871DF06B140035F00B /* hardware_interface.o */,
-				07C1CA881DF06B140035F00B /* disk.o */,
-				07C1CA891DF06B140035F00B /* debug.o */,
-				07C1CA8A1DF06B140035F00B /* console.o */,
-				07C1CA931DF07F7E0035F00B /* standalone.o */,
+				0700BB211DF7643300AD59DD /* usercode.o */,
+				0700BB221DF7643300AD59DD /* standalone.o */,
+				0700BB231DF7643300AD59DD /* mem.o */,
+				0700BB241DF7643300AD59DD /* hardware.o */,
+				0700BB251DF7643300AD59DD /* hardware_interface.o */,
+				0700BB261DF7643300AD59DD /* disk.o */,
+				0700BB271DF7643300AD59DD /* debug.o */,
+				0700BB281DF7643300AD59DD /* console.o */,
 				079729AE1DD8A9D5009CB125 /* cs240.dsk */,
 				079729941DD8A5F6009CB125 /* CS240-OS */,
 				079729931DD8A5F6009CB125 /* Products */,

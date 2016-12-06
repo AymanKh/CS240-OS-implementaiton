@@ -3,10 +3,21 @@
    version = "1.0">
    <ContextStates>
       <ContextState
-         contextName = "readDiskWrapper:ObjectStore.c">
+         contextName = "GetPersistentObjectSize:ObjectStore.c">
+      </ContextState>
+      <ContextState
+         contextName = "MapPersistentObject:ObjectStore.c">
          <PersistentStrings>
             <PersistentString
-               value = "hashTableTid">
+               value = "hashTableAddresses">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "_AddOneStackPage:interrupts.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "currentPCB">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -19,15 +30,7 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "UnMapPersistentObject:ObjectStore.c">
-      </ContextState>
-      <ContextState
-         contextName = "MapPersistentObject:ObjectStore.c">
-         <PersistentStrings>
-            <PersistentString
-               value = "hashTableAddresses">
-            </PersistentString>
-         </PersistentStrings>
+         contextName = "CreateProcess:process.c">
       </ContextState>
       <ContextState
          contextName = "DiskInterrupt:interrupts.c">
@@ -38,7 +41,18 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "GetPersistentObjectSize:ObjectStore.c">
+         contextName = "readDiskWrapper:ObjectStore.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "hashTableTid">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "UnMapPersistentObject:ObjectStore.c">
+      </ContextState>
+      <ContextState
+         contextName = "initilizeKeyNameHashTable:ObjectStore.c">
       </ContextState>
    </ContextStates>
 </VariablesViewState>

@@ -15,7 +15,7 @@ static Queue	freepcbs;
 static Queue	runQueue;
 static Queue	waitQueue;
 
-void runProcess()
+int CreateProcess(char * executable)
 {
     /*
      1. get physical addresses in memory for code and stack from header, by adding their size to the header
@@ -32,20 +32,55 @@ void runProcess()
      12. iret()
      */
     
-//    int x = test;
-    
     char a[60];
     sprintf(a,"in runProcess\n");
     write_console((unsigned)strlen(a),"in runProcess\n");
+    
+    keynameHash *getHash = NULL;
+    
+    for(getHash = hashTable; getHash != NULL ; getHash=getHash->hh.next)
+    {
+        char * st = getHash->keynameH;
+        
+        if (strcmp(st,executable) == 0)
+        {
+            break;
+        }
+        //        tempBlock = s->blocksHead;
+    }
+    
+    if (getHash == NULL)
+    {
+        return -1;
+    }
+
 
     
     // TODO: hard coded for now, replace (1<<20) with a page in memory
     
     
+    void *addr2 = translateBitPositionToPageNumberInMemory(SearchForAvailableBit(Memory));
+    SetBits(SearchForAvailableBit(Memory),Memory);
     
+    blockNode *temp;
+    int noOfBlocksForExecutable;
     
-    unsigned hardCoded = (unsigned)(1<<20);
-    header * vaddr = (header *)map_physical_page((void * )hardCoded);
+    LL_COUNT(getHash->blocksHead, temp, noOfBlocksForExecutable);
+    cont *newCont = malloc(sizeof(*newCont));
+    newCont->func = &runProcess;
+    newCont->arg1 = addr2;
+    newCont->tid = read_disk(getHash->blocksHead->blockPosition*8, noOfBlocksForExecutable*8, addr2);
+    HASH_ADD_INT(hashTableTid, tid, newCont);
+    
+    return 0;
+}
+
+void runProcess(void * mapAddr)
+{
+
+
+//    unsigned hardCoded = (unsigned)(1<<20);
+    header * vaddr = (header *)map_physical_page((void * )mapAddr);
     
     
     
@@ -127,22 +162,26 @@ void runProcess()
     
     pte stackPTE;
     stackPTE.pte_ = (int)stackAddrActual & (int)(0xfffff000);
-    stackPTE.pte_ |= (0x00000013); // read, write, valid
+    stackPTE.pte_ |= (0x00000015); // read, write, valid, execute
 
     
     
     // Map the 2nd level pages for code, stack, and segments
     pte *codeMappedPage = (pte*)map_physical_page((void*) codeAddr);
+    memset(codeMappedPage, 0, 4096);
     codeMappedPage[vAddrCodeSegment.composite.interior_level].pte_ = codePTE.pte_;
     
     pte *dataMappedPage = (pte*)map_physical_page((void*) dataAddr);
+    memset(dataMappedPage, 0, 4096);
     dataMappedPage[vAddrDataSegment.composite.interior_level].pte_ = dataPTE.pte_;
     
     pte *stackMappedPage = (pte*)map_physical_page((void*) stackAddr);
-    stackMappedPage[vAddrStackSegment.composite.interior_level] = stackPTE;
+    memset(stackMappedPage, 0, 4096);
+    stackMappedPage[vAddrStackSegment.composite.interior_level].pte_ = stackPTE.pte_;
     
     // 7. and 8. write PTEs to the first root level
     pte *rootMappedPage = (pte*)map_physical_page((void*) rootPageAddr);
+    memset((void*)rootMappedPage, 0, 4096);
     pte rootCodePTE;
     rootCodePTE.pte_ = (int)codeAddr & (int)(0xfffff000);
     rootCodePTE.pte_ |= (0x00000011); // read, valid
@@ -151,14 +190,14 @@ void runProcess()
     rootDataPTE.pte_ = (int)dataAddr & (int)(0xfffff000);
     rootDataPTE.pte_ |= (0x00000011); // read, valid
     
-//    pte rootStackPTE;
-//    rootStackPTE.pte_ = (int)stackAddr & (int)(0xfffff000);
-//    rootStackPTE.pte_ |= (0x00000011);// read, valid
+    pte rootStackPTE;
+    rootStackPTE.pte_ = (int)stackAddr & (int)(0xfffff000);
+    rootStackPTE.pte_ |= (0x00000011);// read, valid
     
     // fill up the root page with the PTEs
     rootMappedPage[vAddrCodeSegment.composite.root_level].pte_ = rootCodePTE.pte_;
     rootMappedPage[vAddrDataSegment.composite.root_level].pte_ = rootDataPTE.pte_;
-//    rootMappedPage[vAddrStackSegment.composite.root_level] = rootStackPTE;
+    rootMappedPage[vAddrStackSegment.composite.root_level].pte_ = rootStackPTE.pte_;
     
     // set_ptbr and machine context
     set_ptbr((void*)rootPageAddr);
@@ -169,9 +208,18 @@ void runProcess()
     //TODO: move to somwhere more elegent (i.e process schedlur)
     PCB *runningPCB = malloc(sizeof(*runningPCB));
     runningPCB->rootPagePhysAddress = rootPageAddr;
+    runningPCB->ptbr = rootPageAddr;
+    runningPCB->codeOffsetInRoot = vAddrCodeSegment.composite.root_level;
+    runningPCB->dataOffsetInRoot = vAddrDataSegment.composite.root_level;
+    runningPCB->stackOffsetInRoot = vAddrStackSegment.composite.root_level;
+    runningPCB->codeOffsetInL2 = vAddrCodeSegment.composite.interior_level;
+    runningPCB->dataOffsetInL2 = vAddrDataSegment.composite.interior_level;
+    runningPCB->stackOffsetInL2 = vAddrStackSegment.composite.interior_level;
+    runningPCB->stack_segment_start = stack_segment_start;
+    
+    
     currentPCB = runningPCB;
     
-//    return 0;
 
     
 }
@@ -179,25 +227,17 @@ void runProcess()
 
 void ProcessModuleInit()
 {
-    //    QueueInit(&freepcbs);
-    //    QueueInit(&runQueue);
+//    QueueInit(&freepcbs);
+//        QueueInit(&runQueue);
     //    QueueInit(&waitQueue);
     
     //    for (int i = 0; i < PROCESS_MAX_PROCS; i++) {
-    ////        pcbs[i].flags = PROCESS_STATUS_FREE;
+    //        pcbs[i].flags = PROCESS_STATUS_FREE;
     //        QueueLinkInit(&(pcbs[i].l), (void *)&pcbs[i]);
     //        QueueInsertFirst(&freepcbs, &(pcbs[i].l));
     //    }
     //    currentPCB = NULL;
 }
-
-//int CreateProcess(char * executable)
-//{
-//    
-//    
-//    return 0;
-//}
-
 
 void Exit()
 {

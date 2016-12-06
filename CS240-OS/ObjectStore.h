@@ -14,7 +14,7 @@
 #include "utlist.h"
 #include "hardware_interface.h"
 #include "process.h"
-//#include "defines.h"
+#include "defines.h"
 
 //#include "BitMap.h"
 
@@ -33,14 +33,25 @@ int FreePersistentStoreSpace();
 int UsedPersistentStoreSpace();
 int NumOfPersistentObjects();
 char * GetPersistentObjectKey(int i);
+void _UnMapFromPTBR(void *address, int noOfBlock);
 
 
-typedef struct blockNode blockNode;
 
-struct blockNode {
-    int blockPosition;
-    blockNode *next; /* needed for singly- or doubly-linked lists */
+
+//typedef struct blockNode blockNode;
+//
+//struct blockNode {
+//    int blockPosition;
+//    blockNode *next; /* needed for singly- or doubly-linked lists */
+//};
+
+typedef struct mappedPages mappedPages;
+
+struct mappedPages {
+    void *addr;
+    mappedPages *next; /* needed for singly- or doubly-linked lists */
 };
+
 
 /* 
  This structure stores the addresses that need to be written to disk in pairs(disk address & memory address)
@@ -70,15 +81,15 @@ struct physicalAddresesInMemoryNode {
 };
 
 
-typedef struct _KeynameHash {
-    void *keynameH;
-    int size;
-    int mappedFlag;
-    blockNode *blocksHead;
-    UT_hash_handle hh;         /* makes this structure hashable */
-} keynameHash ;
+//typedef struct _KeynameHash {
+//    void *keynameH;
+//    int size;
+//    int mappedFlag;
+//    blockNode *blocksHead;
+//    UT_hash_handle hh;         /* makes this structure hashable */
+//} keynameHash ;
 
-keynameHash *hashTable = NULL;
+//keynameHash *hashTable = NULL;
 
 int keyname_sorti(keynameHash *a, keynameHash *b);
 
@@ -94,6 +105,14 @@ typedef struct _addressesHash {
 } addressHash;
 
 addressHash *hashTableAddresses = NULL;
+
+typedef struct _KeynameToBlocks {
+    void * keyVirtualAddr;
+    int noOfBlocks;
+    UT_hash_handle hh;         /* makes this structure hashable */
+} KeynameToBlocks;
+
+KeynameToBlocks *hashTableVAddrToBlocks = NULL;
 
 
 
@@ -112,20 +131,21 @@ int freeBlocks = NO_OF_BLOCKS;
 
 
 // This structure will be used when calling actual reads to the disk
-typedef struct _cont {
-    void (* func)();
-    signed int tid;
-    void *arg1;
-    int arg2;
-    UT_hash_handle hh;         /* makes this structure hashable */
-} cont;
+//typedef struct _cont {
+//    void (* func)();
+//    signed int tid;
+//    void *arg1;
+//    int arg2;
+//    UT_hash_handle hh;         /* makes this structure hashable */
+//} cont;
 
-cont *hashTableTid = NULL;
+//cont *hashTableTid = NULL;
 
 
 void readDiskWrapper(addressToReadNode *head, int index);
 void writeDiskWrapper(addressToReadNode *head, int index);
 
+void * _MapContinousPages(mappedPages *head, int offset);
 
 extern int translateBitPositionToBlockNumberInDisk(int position);
 extern void* translateBitPositionToPageNumberInMemory(int position);
@@ -134,6 +154,7 @@ extern void SetBits(int position,int dest); // set a bit to one
 extern void ClearBits(int position,int dest); // clear a bit (or multiple) upon deletion of a persistent object
 
 extern PCB *currentPCB;
-extern int test;
+//int test77;
+
 
 #endif /* ObjectStore_h */

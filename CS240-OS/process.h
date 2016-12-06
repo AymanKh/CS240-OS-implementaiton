@@ -12,7 +12,8 @@
 #include <stdio.h>
 #include "Queue.h"
 #include "hardware_interface.h"
-//#include "defines.h"
+#include "defines.h"
+#include "utlist.h"
 
 
 #define MEM_L1TABLE_SIZE 1024
@@ -27,16 +28,26 @@ int FreezeProcess(int pid, int ticks);
 int ResumeProcess(int pid);
 int GetMyPid();
 
+void runProcess(void * addr);
+
 typedef struct PCB {
 //    uint32	*currentSavedFrame; // -> current saved frame.  MUST BE 1ST!
 //    uint32	*sysStackPtr;	// Current system stack pointer.  MUST BE 2ND!
 //    uint32	sysStackArea;	// System stack area for this process
     /* uint32 * userStackPtr;	// user stack pointer */
 //    unsigned int	flags;
+    unsigned codeOffsetInRoot;
+    unsigned stackOffsetInRoot;
+    unsigned dataOffsetInRoot;
+    unsigned stackOffsetInL2;
+    unsigned codeOffsetInL2;
+    unsigned dataOffsetInL2;
+    unsigned stack_segment_start;
+    
     char		name[80];	// Process name
     int	L1_pagetable[MEM_L1TABLE_SIZE]; // Statically allocated page table
     int npages;
-    int ptbr;
+    unsigned ptbr;
     unsigned rootPagePhysAddress;
     
     Link		*l;		// Used for keeping PCB in queues
@@ -45,7 +56,8 @@ typedef struct PCB {
 extern PCB	*currentPCB;
 extern int Memory;
 extern int Disk;
-extern int test;
+//extern int test77;
+//extern int test;
 
 
 extern int SearchForAvailableBit(int dest);

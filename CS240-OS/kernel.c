@@ -28,6 +28,7 @@ void kernel_start()
     void (*diskInterruptPointer)(int) = &DiskInterrupt;
     void (*machineCheckInterruptPointer)(int) = &MachineCheckInterrupt;
     void (*TrapInterruptPointer)(int) = &TrapInterrupt;
+    void (*ExceptionInterruptPointer)(int) = &ExceptionInterrupt;
 
     
     
@@ -37,23 +38,16 @@ void kernel_start()
     set_ivec(I_DSK, diskInterruptPointer);
     set_ivec(I_CHECK, machineCheckInterruptPointer);
     set_ivec(I_TRAP, TrapInterruptPointer);
+    set_ivec(I_EXCEPT, ExceptionInterruptPointer);
     
     
-//    initilizeKeyNameHashTable("HashTableKeyNameLog");
+    initilizeKeyNameHashTable("HashTableKeyNameLog");
     
-//    CreateProcess("hello.b");
+    CreateProcess("stack1.b");
     
 //    int x = HASH_COUNT(hashTable);
     
     // Test running hello.b
-    void *addr2 = translateBitPositionToPageNumberInMemory(SearchForAvailableBit(Memory));
-    SetBits(SearchForAvailableBit(Memory),Memory);
-    
-    
-    cont *newCont = malloc(sizeof(*newCont));
-    newCont->func = &runProcess;
-    newCont->tid = read_disk(0, 1, addr2);
-    HASH_ADD_INT(hashTableTid, tid, newCont);
     
 
     
@@ -94,10 +88,10 @@ void kernel_start()
     
 //    int warn = c1+c2+c3+c4+c5+g1+u1;
     
-    
+    halt();
+
     logKeyNameHashTable();
     
-    halt();
     //        shutdown_machine();
 }
 

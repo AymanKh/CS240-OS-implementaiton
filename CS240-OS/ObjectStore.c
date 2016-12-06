@@ -8,6 +8,10 @@
 
 #include "ObjectStore.h"
 
+keynameHash *hashTable = NULL;
+cont *hashTableTid = NULL;
+
+
 // initilizing hashtable for addresses to be read from/to disk
 
 
@@ -106,9 +110,14 @@ void * MapPersistentObject(char * keyname, int offset, int size)
     
     /* v2
      1. use current ptbr to get to the current process table
-     2. 
+     2. if there are no interior pages mapped, then map a new page
+     3. else, check current mapped pages if they has free space
+     4. if they don't, then map a new page
      
      */
+    
+    // initilize list
+    mappedPages *tobeMappedPagesHead = NULL;
     
     
     // initilize getHash
@@ -180,10 +189,19 @@ void * MapPersistentObject(char * keyname, int offset, int size)
         {
             returnVirtualAddress = map_physical_page(memAddress);
             returnAddressFlag = 0;
+            
+            // add to linked list for later use by _MapContinousPages()
+            mappedPages *toBeMappedAddress = malloc(sizeof(*toBeMappedAddress));
+            toBeMappedAddress->addr = memAddress;
+            LL_APPEND(tobeMappedPagesHead, toBeMappedAddress);
+
         }
         else
         {
             map_physical_page(memAddress);
+            mappedPages *toBeMappedAddress = malloc(sizeof(*toBeMappedAddress));
+            toBeMappedAddress->addr = memAddress;
+            LL_APPEND(tobeMappedPagesHead, toBeMappedAddress);
         }
         
         
@@ -261,7 +279,10 @@ void * MapPersistentObject(char * keyname, int offset, int size)
         
         
         // Map disk to memory
-        map_physical_page(memAddress);
+//        map_physical_page(memAddress);
+        mappedPages *toBeMappedAddress = malloc(sizeof(*toBeMappedAddress));
+        toBeMappedAddress->addr = memAddress;
+        LL_APPEND(tobeMappedPagesHead, toBeMappedAddress);
         
         requestedBlocksInMemory--;
     }
@@ -279,13 +300,170 @@ void * MapPersistentObject(char * keyname, int offset, int size)
     
 //    currentPCB->ptbr;
     
+    int noOfContigousBlocks;
+    mappedPages *tempMapped;
+    LL_COUNT(tobeMappedPagesHead, tempMapped, noOfContigousBlocks);
+    
+    KeynameToBlocks *newInstance = malloc(sizeof(*newInstance));
+    newInstance->keyVirtualAddr = _MapContinousPages(tobeMappedPagesHead, offset);
+    newInstance->noOfBlocks = noOfContigousBlocks;
+    
+    HASH_ADD_PTR(hashTableVAddrToBlocks, keyVirtualAddr, newInstance);
     
     
     
-    return returnVirtualAddress;
     
+    return newInstance->keyVirtualAddr;
+//    return NULL;
     
 }
+
+
+void * _MapContinousPages(mappedPages *head, int offset)
+{
+    /*
+     Task: the list 'mappedPages' contain physical addresses that need to be inserted into 
+     the interioir level of the currently running process
+     
+     1. 
+     */
+    
+    v_address returnVirtual;
+    returnVirtual.address = 0;
+    int noOfBlocks;
+    mappedPages *temp;
+    LL_COUNT(head, temp, noOfBlocks);
+//    void *rootPage = (void*)currentPCB->ptbr;
+    pte *mappedRootPage = (pte*)map_physical_page((void*)currentPCB->rootPagePhysAddress);
+    
+    pte *tempPTE = malloc(sizeof(*tempPTE));
+    
+    memcpy((void*)tempPTE,(void*) mappedRootPage, sizeof(pte));
+//    tempPTE = mappedRootPage[2];
+    
+    int size = 0;
+    
+    
+    int i = 0;
+    
+    while (i < 1024)
+    {
+        memcpy((void*)tempPTE, (void*)mappedRootPage+size, sizeof(pte));
+        
+        if (i == currentPCB->codeOffsetInRoot || i == currentPCB->dataOffsetInRoot || i == currentPCB->stackOffsetInRoot)
+        {
+            size += sizeof(pte);
+            i++;
+            continue;
+        }
+        
+        if(tempPTE->pte_ == 0)
+        {
+            /*
+             1. allocate a new page
+             2. fill up a PTE to be put in root
+             3. put given phys. addresses in the first blocks in interior level
+             
+             TODO: what if we need to map more than 1024 pages ?
+             */
+            
+            int blockInMemoryBit = SearchForAvailableBit(Memory);
+            SetBits(blockInMemoryBit, Memory);
+            void * blockInMemoryPhysicalAddress = translateBitPositionToPageNumberInMemory(blockInMemoryBit);
+            
+            pte newPTE;
+            newPTE.pte_ = ( (unsigned) blockInMemoryPhysicalAddress << 12);
+            newPTE.pte_ |= 0x00000013;
+            
+            mappedRootPage[i].pte_ = newPTE.pte_;
+            
+            pte * newInteriorLevel = (pte*) map_physical_page(blockInMemoryPhysicalAddress);
+            
+            for (int j = 0; j < noOfBlocks; j++)
+            {
+                pte actualMappedObjectPTE;
+                actualMappedObjectPTE.pte_ = ((unsigned)head->addr << 12);
+                actualMappedObjectPTE.pte_ |= 0x00000013;
+                
+                newInteriorLevel[j].pte_ = actualMappedObjectPTE.pte_;
+                
+                head = head->next;
+            }
+
+            
+            returnVirtual.address = (i << 22);
+            returnVirtual.address |= offset;
+            break;
+            
+        }
+        else
+        {
+            /*
+             1. map the address in PTE, get the virtual address back of the interior level
+             2. loop and count, stop when you find contigous blocks
+             */
+            
+            unsigned physicalAddressInteriorPage = tempPTE->pte_ & 0xfffff000;
+            pte* mappedInteriorPage = (pte*)map_physical_page((void*)physicalAddressInteriorPage);
+            
+            pte tempPTE;
+            
+            int count = 0;
+            int j = 0;
+            
+            for (j = 0; j < 1024 && count < noOfBlocks;j++)
+            {
+                if (mappedInteriorPage[j].pte_ == 0)
+                {
+                    count++;
+                }
+                else
+                {
+                    count = 0;
+                }
+                
+            }
+            
+            if (j == 1024)
+            {
+                size += sizeof(pte);
+                i++;
+                continue;
+            }
+            
+                
+                
+            int interiorOffsetFound = j - count - 1;
+            
+            j = 0;
+            for(j = 0; j < count; j++)
+            {
+                pte actualMappedObjectPTE;
+                actualMappedObjectPTE.pte_ = ((unsigned)head->addr << 12);
+                actualMappedObjectPTE.pte_ |= 0x00000013;
+                
+                mappedInteriorPage[interiorOffsetFound+j].pte_ = actualMappedObjectPTE.pte_;
+                
+                head = head->next;
+                
+            }
+            
+            returnVirtual.address = (i << 22);
+            returnVirtual.address |= (interiorOffsetFound << 12);
+            returnVirtual.address |= offset;
+            break;
+            
+        }
+
+        
+    }
+    
+    
+
+    return (void*)returnVirtual.address;
+    
+}
+
 
 void readDiskWrapper(addressToReadNode *head, int index)
 {
@@ -346,8 +524,11 @@ int UnMapPersistentObject(void * address)
             break;
         }
     }
-
-
+    
+    int noOfBlock;
+    
+    physicalAddresesInMemoryNode *tempNode;
+    LL_COUNT(getHashAddress->physicalAddresesInMemoryHead,tempNode,noOfBlock);
     
     keynameHash *getHash = hashTable;
     
@@ -385,9 +566,44 @@ int UnMapPersistentObject(void * address)
     
     HASH_DEL(hashTableAddresses, getHashAddress);
     
+    /*
+     1. Walk the ptbr and zero out the PTE entries in the interior level
+     */
+    
+    _UnMapFromPTBR(address, noOfBlock);
+    
+    
     writeDiskWrapper(adressesToWriteHead,0);
     
     return 0;
+}
+
+void _UnMapFromPTBR(void *va, int noOfBlock)
+{
+    unsigned activeRootPagePhysAddre = currentPCB->rootPagePhysAddress;
+    
+    v_address virtualAddress;
+    virtualAddress.composite.root_level = ((unsigned)va >> 22);   // = 0b00000000001111111111000000000000
+    virtualAddress.composite.interior_level = ((unsigned)va  & 0x003ff000);
+    virtualAddress.composite.interior_level = (virtualAddress.composite.interior_level >> 12);
+    virtualAddress.composite.offset = ((unsigned)va & 0x00000fff);
+    
+    pte *mappedRootPage = (pte*)map_physical_page((void*)activeRootPagePhysAddre);
+    pte *pteFirstLevel = malloc(sizeof(*pteFirstLevel));
+    memcpy((void*)pteFirstLevel, (void*)((void*)mappedRootPage+virtualAddress.composite.root_level*sizeof(pte)), sizeof(pte));
+    pteFirstLevel->pte_ &= 0xfffff000;
+    
+    pte *mappedL1Page = (pte*)map_physical_page(pteFirstLevel->pte_);
+    pte *pteSecondLevel = malloc(sizeof(*pteSecondLevel));
+    memcpy((void*)pteSecondLevel, (void*)((void*)mappedL1Page+virtualAddress.composite.interior_level*sizeof(pte)), sizeof(pte));
+    pteSecondLevel->pte_ &= 0xfffff000;
+    
+    for (int i = 0; i < noOfBlock; i++)
+    {
+        mappedL1Page[virtualAddress.composite.interior_level+i].pte_ = 0;
+    }
+    
+
 }
 
 void writeDiskWrapper(addressToReadNode *head, int index)
@@ -577,7 +793,7 @@ void initilizeKeyNameHashTable(char *logName)
     int size = 0;
     int blockPosition = 0;
     
-//    test = 77;
+//    test77 = 777;
     
     while (!feof (fp))
     {
@@ -601,7 +817,9 @@ void initilizeKeyNameHashTable(char *logName)
         }
         
         keynameHash *tempToHash = malloc(sizeof(keynameHash));
-        tempToHash->keynameH = keyname;
+        tempToHash->keynameH = malloc(sizeof(*(tempToHash->keynameH)));
+        strcpy(tempToHash->keynameH, keyname);
+//        tempToHash->keynameH = keyname;
         tempToHash->mappedFlag = 0;
         tempToHash->size = size;
         tempToHash->blocksHead = blocksHandler;

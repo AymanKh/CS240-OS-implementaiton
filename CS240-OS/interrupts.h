@@ -18,7 +18,6 @@
 #include "process.h"
 //#include "HandleDisk.h"
 //#include "BitMap.h"
-//#include "ObjectStore.h"
 
 struct Temp {
     char array[512];
@@ -30,18 +29,20 @@ void ConsoleInterrupt(int input);
 void DiskInterrupt(int input);
 void MachineCheckInterrupt(int input);
 void TrapInterrupt(int input);
+void ExceptionInterrupt(int input);
+int _AddOneStackPage(unsigned va);
 unsigned _TranslateVirtualAddressToPhysicalAddress(unsigned va);
 
 extern int nbytes;
 
-typedef struct _cont {
-    void (* func)();
-    int tid;
-    void *arg1;
-    int arg2;
-    UT_hash_handle hh;         /* makes this structure hashable */
-} cont;
-
+//typedef struct _cont {
+//    void (* func)();
+//    int tid;
+//    void *arg1;
+//    int arg2;
+//    UT_hash_handle hh;         /* makes this structure hashable */
+//} cont;
+//
 
 extern cont *hashTableTid;
 extern PCB *currentPCB;
