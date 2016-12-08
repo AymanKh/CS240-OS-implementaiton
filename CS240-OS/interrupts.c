@@ -10,12 +10,14 @@
 #include "utlist.h"
 
 
-
+cont *hashTablePid = NULL;
 
 int clockRunning = 0;
 int jiffies = 0;
-char consoleInput[100];
+char consoleInput[256];
 int noOfChars = 0;
+
+
 
 // Clock Interrupt
 
@@ -37,7 +39,7 @@ void ClockInterrupt(int input)
     unsigned testsp = machine_context.sp;
     unsigned testpc = machine_context.pc;
     sprintf(x,"testsp = %x, testpc = %x\n",testsp,testpc);
-//    write_console((unsigned)strlen(x), x);
+    //    write_console((unsigned)strlen(x), x);
     
     if (processSchedule() == OS_OK)
     {
@@ -48,9 +50,6 @@ void ClockInterrupt(int input)
         halt();
     }
     
-
-    
-
 }
 
 // Console Interrupt
@@ -64,24 +63,46 @@ void ConsoleInterrupt(int input)
     
     consoleInput[noOfChars++] = input;
     
+//    memset(consoleInput,0,100);
+//    noOfChars = 0;
+
+
+    
     if (noOfChars == nbytes)
     {
-        write_console(20,"Input has been read\n");
-        sprintf(s,"You Entered: %s and i = %d\n",consoleInput, noOfChars);
-        write_console((unsigned) strlen(s),s);
-        memset(consoleInput,0,100);
+//        write_console(20,"Input has been read\n");
+//        sprintf(s,"You Entered: %s and i = %d\n",consoleInput, noOfChars);
+//        write_console((unsigned) strlen(s),s);
+//        memset(consoleInput,0,100);
         noOfChars = 0;
     }
     else if (input == '\n')
     {
+        
         write_console(20,"Input has been read\n");
         sprintf(s,"You Entered: %s and i = %d\n",consoleInput, noOfChars);
         write_console((unsigned) strlen(s),s);
-        memset(consoleInput,0,100);
+        activateBlockedProcess();
+        
+        cont *tempCont;
+        PCB *headQueue = _getHeadofReadyQueue();
+        HASH_FIND_INT(hashTablePid, &(headQueue->PID), tempCont);
+        
+        (tempCont->func)(tempCont->arg1, tempCont->arg2);
         noOfChars = 0;
+        
+        
+
     }
     
-    halt();
+    if (currentPCB != NULL)
+    {
+        iret();
+    }
+    else
+    {
+        halt();
+    }
     
     
 }
@@ -125,7 +146,8 @@ void DiskInterrupt(int tid)
         (test->func)();
     }
     
-//    iret();
+    //    iret();
+    
     
 }
 
@@ -138,11 +160,11 @@ void ExceptionInterrupt(int input)
     unsigned va;
     int x;
     char z[200];
-
+    
     
     switch (input) {
         case EXCEPTION_BAD_ADDRESS:
-
+            
             va = e_context.a[0];
             
             unsigned diff = (unsigned)currentPCB->stack_segment_start - va;
@@ -174,7 +196,7 @@ void ExceptionInterrupt(int input)
     }
     else
     {
-        shutdown_machine();
+        halt();
     }
 }
 
@@ -195,7 +217,7 @@ void TrapInterrupt(int input)
     unsigned arg3 = machine_context.reg[14];
     unsigned arg4 = machine_context.reg[15];
     
-    char s[100];
+    char s[300];
     sprintf(s,"Interrupt: Trap Interrupt! Trap Number = %d \n",trapNo);
     write_console((unsigned) strlen(s), s);
     char t[50];
@@ -220,22 +242,37 @@ void TrapInterrupt(int input)
             sprintf(s,"TRAP_WRITE_CONSOLE in progress...\n");
             write_console((unsigned) strlen(s), s);
             unsigned va = machine_context.reg[12];
-            int diff = (currentPCB->data_segment_start+currentPCB->data_segment_size) - va;
-            int diff2 = va - (currentPCB->data_segment_start+currentPCB->data_segment_size);
             
-            if (va > (currentPCB->data_segment_start+currentPCB->data_segment_size) || va < (currentPCB->data_segment_start))
+            int outsideDataSegment = (va > (currentPCB->data_segment_start+currentPCB->data_segment_size) || va < (currentPCB->data_segment_start));
+            
+            int outsideDynamicSegment = (va > (currentPCB->dynamic_mem_start + currentPCB->dynamic_mem_size) || va < (currentPCB->dynamic_mem_start));
+            
+            if (outsideDataSegment)
             {
-                sprintf(s,"This is not the process's terrirory, destroying process...\n");
-                write_console((unsigned) strlen(s), s);
-                DestoryCurrentPCB();
-                
+                if(outsideDynamicSegment)
+                {
+                    sprintf(s,"This is not the process's terrirory, destroying process...\n");
+                    write_console((unsigned) strlen(s), s);
+                    DestoryCurrentPCB();
+                }
+                else
+                {
+                    WriteConsole((char *)_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12]), (int)machine_context.reg[13]);
+                }
             }
             else
             {
                 WriteConsole((char *)_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12]), (int)machine_context.reg[13]);
             }
             
-                        break;
+            /*
+             1. check if current process is in hashTablePid
+             
+             */
+            
+            
+            
+            break;
             
         case TRAP_CREATE_PERSISTENT_OBJECT:
             
@@ -291,10 +328,75 @@ void TrapInterrupt(int input)
             }
             break;
             
-        case TRAP_SHUTDOWN:
+        case TRAP_CREATE_MEMORY_OBJECT:
             
+            sprintf(s,"TRAP_CREATE_MEMORY_OBJECT in progress...\n");
+            write_console((unsigned) strlen(s), s);
+            //void * returnToUser = CreateMemoryObject((char*)_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12]));
+            void * returnToUser = _TranslateVirtualAddressToPhysicalAddressDynamic();
+            
+            if (returnToUser != NULL)
+            {
+                machine_context.reg[11] = returnToUser;
+                
+            }
+            else
+            {
+                machine_context.reg[11] = NULL;
+            }
+            
+            break;
+            
+            
+        case TRAP_SHUTDOWN:
             shutdown_machine();
             break;
+            
+        case TRAP_READ_CONSOLE:
+            
+            sprintf(s,"TRAP_READ_CONSOLE in progress...\n");
+            write_console((unsigned) strlen(s), s);
+            
+            /*
+             1. create the cont. structure, its function pointer should the function readConsole. 
+             2. block the currently running PCB
+             3. in console interrupt, put the data in the buffer -> DONE
+             4. call the continutation function
+             5. run the process
+             */
+            
+            int nbytesTrap = machine_context.reg[13];
+            cont *readPCBcont = malloc(sizeof(*readPCBcont));
+            readPCBcont->func = &ReadConsole;
+            readPCBcont->arg1 = (void *)_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12]);
+            readPCBcont->arg2 = nbytesTrap;
+            readPCBcont->tid = currentPCB->PID;
+            
+            HASH_ADD_INT(hashTablePid, tid, readPCBcont);
+            
+            addCurrentPCBtoBlockedQueue();
+        
+
+            break;
+            
+        case TRAP_CREATE_PROCESS:
+            sprintf(s,"TRAP_CREATE_PROCESS in progress...\n");
+            write_console((unsigned) strlen(s), s);
+            
+            unsigned vaCP = machine_context.reg[12];
+            int ret = CreateProcess((char*)_TranslateVirtualAddressToPhysicalAddress(vaCP));
+            if (ret == OS_OE)
+            {
+                sprintf(s,"You are having way too much fun (processes), and you are being cavalier about it, ABORTING!!\n");
+                write_console((unsigned) strlen(s), s);
+                shutdown_machine();
+            }
+            
+            break;
+            
+            
+            
+            
     }
     
     if (currentPCB != NULL)
@@ -303,7 +405,7 @@ void TrapInterrupt(int input)
     }
     else
     {
-        shutdown_machine();
+        halt();
     }
     
 }
@@ -325,13 +427,13 @@ unsigned _TranslateVirtualAddressToPhysicalAddress(unsigned va)
     virtualAddress.composite.interior_level = (virtualAddress.composite.interior_level >> 12);
     virtualAddress.composite.offset = (va & 0x00000fff);
     
-
+    
     pte *mappedRootPage = (pte*)map_physical_page(activeRootPagePhysAddre);
     pte *pteFirstLevel = malloc(sizeof(*pteFirstLevel));
     memcpy((void*)pteFirstLevel, (void*)((void*)mappedRootPage+virtualAddress.composite.root_level*sizeof(pte)), sizeof(pte));
     pteFirstLevel->pte_ &= 0xfffff000;
     
-
+    
     pte *mappedL1Page = (pte*)map_physical_page(pteFirstLevel->pte_);
     pte *pteSecondLevel = malloc(sizeof(*pteSecondLevel));
     memcpy((void*)pteSecondLevel, (void*)((void*)mappedL1Page+virtualAddress.composite.interior_level*sizeof(pte)), sizeof(pte));
@@ -411,3 +513,100 @@ int _AddOneStackPage(unsigned va)
     
     return 0;
 }
+
+void * _TranslateVirtualAddressToPhysicalAddressDynamic()
+{
+    /*
+     1. find the first available entry in the root page
+     2. allocate a new interior page (search -> set)
+     3. link them
+     4. allocate an actual 'DynamicObject' page
+     5. put its address in the first avaialable entry in interior level
+     */
+    
+    unsigned activeRootPagePhysAddre = currentPCB->rootPagePhysAddress;
+    pte *mappedRootPage = (pte*)map_physical_page(activeRootPagePhysAddre);
+    pte *pteFirstLevel = malloc(sizeof(*pteFirstLevel));
+    
+    pte tempPTE;
+    
+    
+    
+    int i = 270;
+    
+    
+    // find the first avaialble root entry
+    while (i < 1024)
+    {
+        tempPTE.pte_ = mappedRootPage[i].pte_;
+        
+        if (i == currentPCB->codeOffsetInRoot || i == currentPCB->dataOffsetInRoot || i == currentPCB->stackOffsetInRoot)
+        {
+            i++;
+            continue;
+        }
+        
+        if (tempPTE.pte_ == 0)
+        {
+            break;
+        }
+        
+    }
+    
+    // allocate a new interior level page
+    int memBlockForInteriorPage = SearchForAvailableBit(Memory);
+    SetBits(memBlockForInteriorPage, Memory);
+    unsigned memBlockForInteriorPageActual = (unsigned) translateBitPositionToPageNumberInMemory(memBlockForInteriorPage);
+    pte * mappedInterior = (pte*) map_physical_page(memBlockForInteriorPageActual);
+    
+    
+    // put PTE in root
+    pte tobePutInRoot;
+    tobePutInRoot.pte_ = memBlockForInteriorPageActual;
+    tobePutInRoot.pte_ |= 0x00000013;
+    mappedRootPage[i].pte_ = tobePutInRoot.pte_;
+    
+    // allocate an actual object page
+    int memBlockForObject = SearchForAvailableBit(Memory);
+    SetBits(memBlockForObject, Memory);
+    unsigned memBlockForObjectAddr = (unsigned) translateBitPositionToPageNumberInMemory(memBlockForObject);
+    
+    pte tobeputinInterior;
+    tobeputinInterior.pte_ = memBlockForObjectAddr;
+    tobeputinInterior.pte_ |= 0x00000013;
+    
+    
+    mappedInterior[0].pte_ = tobeputinInterior.pte_;
+    
+    v_address returnVA;
+    returnVA.composite.root_level = (i << 22);
+    returnVA.composite.interior_level = 0;
+    returnVA.composite.offset = 0;
+    
+    
+    
+    //return returnVA.address;
+    currentPCB->dynamic_mem_start = (i << 22);
+    currentPCB->dynamic_mem_size = 4096;
+    
+    return (void *)(i << 22) ;
+    
+}
+
+
+//            unsigned va = machine_context.reg[12];
+//            int diff = (currentPCB->data_segment_start+currentPCB->data_segment_size) - va;
+//            int diff2 = va - (currentPCB->data_segment_start+currentPCB->data_segment_size);
+//
+//            if (va > (currentPCB->data_segment_start+currentPCB->data_segment_size) || va < (currentPCB->data_segment_start))
+//            {
+//                sprintf(s,"This is not the process's terrirory, destroying process...\n");
+//                write_console((unsigned) strlen(s), s);
+//                DestoryCurrentPCB();
+//
+//            }
+//            else
+//            {
+//                WriteConsole((char *)_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12]), (int)machine_context.reg[13]);
+//            }
+

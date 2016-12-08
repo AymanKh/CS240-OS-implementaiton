@@ -17,7 +17,7 @@
 
 
 #define MEM_L1TABLE_SIZE 1024
-#define PROCESS_MAX_PROCS 10
+#define PROCESS_MAX_PROCS 40
 
 #define	PROCESS_STATUS_FREE	0x1
 #define	PROCESS_STATUS_RUNNABLE	0x2
@@ -53,6 +53,8 @@ typedef struct PCB {
     unsigned code_segment_start;
     unsigned data_segment_size;
     unsigned data_segment_start;
+    unsigned dynamic_mem_start;
+    unsigned dynamic_mem_size;
     
     
     int inuse;
@@ -64,18 +66,20 @@ typedef struct PCB {
     unsigned ptbr;
     unsigned rootPagePhysAddress;
     struct PCB *next;
-    context *PCBcontext;
-    
-    
-    
+    context PCBcontext;
+    UT_hash_handle hh;         /* makes this structure hashable */
+
 //    Link		*l;		// Used for keeping PCB in queues
 } PCB;
 
 extern PCB	*currentPCB;
 extern int Memory;
 extern int Disk;
-//extern int test77;
-//extern int test;
+
+void addCurrentPCBtoBlockedQueue();
+void activateBlockedProcess();
+PCB *_getHeadofReadyQueue();
+
 
 
 extern int SearchForAvailableBit(int dest);

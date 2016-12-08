@@ -17,15 +17,19 @@ int WriteConsole(char *buffer, int nbytes)
     unsigned offset = (unsigned) buffer & 0x00000fff;
     void *p = map_physical_page((void*)((unsigned)buffer & 0xfffff000));
     write_console(nbytes, p+offset);
+    memset(consoleInput, 0, 256);
     
     return 0;
 }
 
 int ReadConsole(char *buffer, int nbytes)
 {
-    nbytes = nbytes;
-    char *x = &consoleInput[0];
-    write_console(1, x);
+    unsigned offset = (unsigned) buffer & 0x00000fff;
+    void *p = map_physical_page((void*)((unsigned)buffer & 0xfffff000));
+    strncpy(p+offset, consoleInput,nbytes-2);
+//    nbytesGL = nbytes;
+//    char *x = &consoleInput[0];
+//    write_console(1, x);
     
     return 0;
 }

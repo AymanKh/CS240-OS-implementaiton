@@ -16,6 +16,7 @@
 #include "console_interface.h"
 #include "uthash.h"
 #include "process.h"
+#include "defines.h"
 //#include "ObjectStore.h"
 //#include "HandleDisk.h"
 //#include "BitMap.h"
@@ -34,6 +35,7 @@ void ExceptionInterrupt(int input);
 void ConsoleInterrupt(int input);
 int _AddOneStackPage(unsigned va);
 unsigned _TranslateVirtualAddressToPhysicalAddress(unsigned va);
+void * _TranslateVirtualAddressToPhysicalAddressDynamic();
 
 extern int nbytes;
 

@@ -44,13 +44,20 @@ void kernel_start()
     initilizeBitMap("DiskBitMapLog");
     initilizeKeyNameHashTable("HashTableKeyNameLog");
     
-    // Process initlization module
-//    ProcessModuleInit();
-    
-    
-    
+
 //    CreateProcess("file0.b");
-    CreateProcess("shutdown.b");
+//    CreateProcess("input.b");
+      CreateProcess("init.b");
+//    CreateProcess("virus.b");
+//    CreateProcess("compute.b");
+//    CreateProcess("hello.b");
+//    CreateProcess("hello.b");
+//    CreateProcess("hello.b");
+//    CreateProcess("hello.b");
+//    CreateProcess("hello.b");
+    
+    
+    
 
 //    CreateProcess("compute.b");
 
@@ -103,7 +110,7 @@ void kernel_start()
 //    int warn = c1+c2+c3+c4+c5+g1+u1;
     
 
-
+    
     
     halt();
 

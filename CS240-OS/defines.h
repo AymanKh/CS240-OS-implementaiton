@@ -29,6 +29,8 @@ typedef struct _cont {
     UT_hash_handle hh;         /* makes this structure hashable */
 } cont;
 
+
+
 typedef struct _KeynameHash {
     void *keynameH;
     int size;
@@ -40,6 +42,7 @@ typedef struct _KeynameHash {
 //extern int test77;
 extern keynameHash *hashTable;
 extern cont *hashTableTid;
+extern cont *hashTablePid;
 
 
 

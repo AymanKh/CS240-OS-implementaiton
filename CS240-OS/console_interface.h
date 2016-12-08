@@ -19,7 +19,7 @@ int ReadConsole(char *buffer, int nbytes);
 int WriteConsole(char *buffer, int nbytes);
 
 //extern int nbytesInput;
-extern char consoleInput[100];
+extern char consoleInput[256];
 //int nbytes;
 
 

@@ -3,6 +3,14 @@
    version = "1.0">
    <ContextStates>
       <ContextState
+         contextName = "_TranslateVirtualAddressToPhysicalAddressDynamic:interrupts.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "((unsigned)i &lt;&lt; 22)">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "DestoryCurrentPCB:process.c">
          <PersistentStrings>
             <PersistentString
@@ -20,6 +28,23 @@
                value = "hashTableTid">
             </PersistentString>
          </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "_TranslateVirtualAddressToPhysicalAddress:interrupts.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "virtualAddress.composite.offset">
+            </PersistentString>
+            <PersistentString
+               value = "(pteSecondLevel-&gt;pte_ + virtualAddress.composite.offset)">
+            </PersistentString>
+            <PersistentString
+               value = "pteSecondLevel-&gt;pte_">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "WriteConsole:console_interface.c">
       </ContextState>
       <ContextState
          contextName = "GetPersistentObjectSize:ObjectStore.c">
@@ -42,9 +67,22 @@
       </ContextState>
       <ContextState
          contextName = "CreateProcess:process.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "(unsigned)executable">
+            </PersistentString>
+         </PersistentStrings>
       </ContextState>
       <ContextState
          contextName = "UnMapPersistentObject:ObjectStore.c">
+      </ContextState>
+      <ContextState
+         contextName = "ConsoleInterrupt:interrupts.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "hashTablePid">
+            </PersistentString>
+         </PersistentStrings>
       </ContextState>
       <ContextState
          contextName = "initilizeKeyNameHashTable:ObjectStore.c">
@@ -76,6 +114,20 @@
          <PersistentStrings>
             <PersistentString
                value = "currentPCB">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "TrapInterrupt:interrupts.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "currentPCB-&gt;data_segment_start+currentPCB-&gt;data_segment_size">
+            </PersistentString>
+            <PersistentString
+               value = "currentPCB">
+            </PersistentString>
+            <PersistentString
+               value = "_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12])">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
