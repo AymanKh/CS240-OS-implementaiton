@@ -24,11 +24,42 @@ int CreatePersistentObject(char *keyname)
      
      TODO: Error Checking: uniqueness of the key*/
     
+    char * keynameCopy;
+    unsigned offset = (unsigned) keyname & 0x00000fff;
+    void *p = map_physical_page((void*)((unsigned)keyname & 0xfffff000));
+    strcpy(keynameCopy, p+offset);
+    
     keynameHash *hashit = malloc(sizeof(*hashit));
-    hashit->keynameH = (void *) keyname;
+    hashit->keynameH = malloc(strlen(keynameCopy)+1);
+    strcpy(hashit->keynameH, keynameCopy);
     hashit->size = 0;
     hashit->blocksHead = NULL;
     hashit->mappedFlag = 0;
+    
+    
+    
+//    char s[50];
+//    sprintf(s,"Bad map coming your way...\n");
+//    write_console((unsigned) strlen(s), s);
+
+
+    
+    keynameHash *getHash;
+    int i = 0;
+    
+    for (getHash = hashTable; getHash != NULL;getHash= getHash->hh.next)
+    {
+        char *test = getHash->keynameH;
+        i++;
+        
+        if (strcmp(keynameCopy,(char*)getHash->keynameH) == 0)
+        {
+            return OS_KE;
+        }
+        
+    }
+    
+    
 
     
     /*
@@ -49,19 +80,44 @@ int CreatePersistentObject(char *keyname)
     
     HASH_ADD_PTR(hashTable, keynameH, hashit);
     
+    char *test2 = hashit->keynameH;
 //    free(hashit);
+//    logKeyNameHashTable();
     
-    return 0;
+
+    
+    
+    return OS_OK;
 }
 
 int GetPersistentObjectSize(char * keyname)
 {
     
-    void * strp = (void *) keyname;
+    char * keynameCopy;
+    unsigned offset = (unsigned) keyname & 0x00000fff;
+    void *p = map_physical_page((void*)((unsigned)keyname & 0xfffff000));
+    strcpy(keynameCopy, p+offset);
     
-//    int count = HASH_COUNT(hashTable);
+    void * strp = (void *) keyname;
     keynameHash *getHash;
-    HASH_FIND_PTR(hashTable,&strp, getHash);
+    
+    for (getHash = hashTable; getHash != NULL;getHash= getHash->hh.next)
+    {
+        char *test = getHash->keynameH;
+        
+        if (strcmp(keynameCopy,(char*)getHash->keynameH) == 0)
+        {
+            break;
+        }
+        
+    }
+    
+    if (getHash == NULL)
+    {
+        return -1;
+    }
+    
+    //HASH_FIND_PTR(hashTable,&strp, getHash);
     assert(getHash != NULL);
     // TODO: check for NULL
     return getHash->size;
@@ -77,21 +133,44 @@ int DeletePersistentObject(char * keyname)
      4. TODO: Unmap from main memory before deletion
      
      */
+    
+    char * keynameCopy;
+    unsigned offset = (unsigned) keyname & 0x00000fff;
+    void *p = map_physical_page((void*)((unsigned)keyname & 0xfffff000));
+    strcpy(keynameCopy, p+offset);
 
     keynameHash *getHash;
-    HASH_FIND_PTR(hashTable,&keyname, getHash);
+    
+    for (getHash = hashTable; getHash != NULL;getHash= getHash->hh.next)
+    {
+        char *test = getHash->keynameH;
+        
+        if (strcmp(keynameCopy,(char*)getHash->keynameH) == 0)
+        {
+            break;
+        }
+        
+    }
+    
+    if (getHash == NULL)
+    {
+        return OS_KN;
+    }
     
     blockNode *temp;
-    
-    
     LL_FOREACH(getHash->blocksHead,temp)
     {
         ClearBits(temp->blockPosition, Disk);
     }
     
+    // Delete from hash
     HASH_DEL(hashTable, getHash);
+//    keynameHash *tempKeyname = getHash->hh.prev;
+//    tempKeyname->hh.next = tempKeyname->hh.next;
+//    getHash->keynameH = NULL;
     
-    return 0;
+    
+    return OS_OK;
 }
 
 // Assumption: if offset exceeds current allocated disk blocks, new blocks will reflect the new size
@@ -761,15 +840,20 @@ char * GetPersistentObjectKey(int i)
 
 void logKeyNameHashTable()
 {
-    FILE *fp = fopen( "HashTableKeyNameLog","w+");
+    FILE *fp = fopen( "HashTableKeyNameLog","w");
     
     keynameHash *s = NULL;
     blockNode *tempBlock = NULL;
+    char *testKeyName;
+    int i = 0;
     
     for(s = hashTable; s != NULL ; s=s->hh.next)
     {
         fprintf(fp,"%s\n", s->keynameH);
         fprintf(fp,"%d\n", s->size);
+        
+        testKeyName = s->keynameH;
+        i++;
         
         tempBlock = s->blocksHead;
         
@@ -779,7 +863,12 @@ void logKeyNameHashTable()
             tempBlock = tempBlock->next;
         }
         
-        fprintf(fp,"-1\n");
+        fprintf(fp,"-1");
+        
+        //Check if next isn't null, add new line
+        if(s->hh.next != NULL){
+            fprintf(fp,"\n");
+        }
     }
     
     fclose(fp);
@@ -819,7 +908,6 @@ void initilizeKeyNameHashTable(char *logName)
         keynameHash *tempToHash = malloc(sizeof(keynameHash));
         tempToHash->keynameH = malloc(sizeof(*(tempToHash->keynameH)));
         strcpy(tempToHash->keynameH, keyname);
-//        tempToHash->keynameH = keyname;
         tempToHash->mappedFlag = 0;
         tempToHash->size = size;
         tempToHash->blocksHead = blocksHandler;

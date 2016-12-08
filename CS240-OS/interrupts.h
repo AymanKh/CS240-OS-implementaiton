@@ -16,6 +16,7 @@
 #include "console_interface.h"
 #include "uthash.h"
 #include "process.h"
+//#include "ObjectStore.h"
 //#include "HandleDisk.h"
 //#include "BitMap.h"
 
@@ -30,10 +31,19 @@ void DiskInterrupt(int input);
 void MachineCheckInterrupt(int input);
 void TrapInterrupt(int input);
 void ExceptionInterrupt(int input);
+void ConsoleInterrupt(int input);
 int _AddOneStackPage(unsigned va);
 unsigned _TranslateVirtualAddressToPhysicalAddress(unsigned va);
 
 extern int nbytes;
+
+extern int CreatePersistentObject(char * keyname);
+extern int DeletePersistentObject(char * keyname);
+extern void logKeyNameHashTable();
+extern void logBitMap();
+
+
+
 
 //typedef struct _cont {
 //    void (* func)();

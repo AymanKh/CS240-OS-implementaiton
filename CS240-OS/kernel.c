@@ -12,8 +12,8 @@
 
 void kernel_start()
 {
-//    set_debug_mode(DEBUG_ALL);
-    reset_debug_mode();
+    set_debug_mode(DEBUG_ALL);
+//    reset_debug_mode();
     start_console();
     initialize_memory(); // Keep track of available pages in main memory
     start_disk();
@@ -40,10 +40,14 @@ void kernel_start()
     set_ivec(I_TRAP, TrapInterruptPointer);
     set_ivec(I_EXCEPT, ExceptionInterruptPointer);
     
-    
+    initilizeBitMap("DiskBitMapLog");
     initilizeKeyNameHashTable("HashTableKeyNameLog");
     
-    CreateProcess("stack1.b");
+    
+    CreateProcess("compute.b");
+//    CreateProcess("file0.b");
+
+    
     
 //    int x = HASH_COUNT(hashTable);
     
@@ -88,9 +92,11 @@ void kernel_start()
     
 //    int warn = c1+c2+c3+c4+c5+g1+u1;
     
+
+
+    
     halt();
 
-    logKeyNameHashTable();
     
     //        shutdown_machine();
 }

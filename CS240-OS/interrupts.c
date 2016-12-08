@@ -33,8 +33,13 @@ void ClockInterrupt(int input)
     
     char x[30];
     sprintf(x,"jiffies = %d \n",jiffies);
+//    write_console((unsigned)strlen(x), x);
     
-    halt();
+//    set_ptbr((void*)currentPCB->ptbr);
+//    machine_context.pc = currentPCB->code_segment_start;
+//    machine_context.sp = currentPCB->stack_segment_start;
+    iret();
+//    halt();
 }
 
 // Console Interrupt
@@ -121,6 +126,8 @@ void ExceptionInterrupt(int input)
     
     unsigned va;
     int x;
+    char z[200];
+
     
     switch (input) {
         case EXCEPTION_BAD_ADDRESS:
@@ -130,24 +137,15 @@ void ExceptionInterrupt(int input)
              */
             //            _AddOneStackPage();
             va = e_context.a[0];
-            
-            
+        
                 // The user process is trying to grow the stack
                 _AddOneStackPage(va);
-                
-        
-            
-            
-            
-            //            {
-            //                char a[100];
-            //                sprintf(a,"Exception Interrupt: Excessive Stack allocation (more than 4MB !!)\n");
-            //                write_console((unsigned) strlen(a), a);
-            //
-            //                // TODO: Destroy Process here, halt() for now
-            //                halt();
-            //            };
             break;
+        case EXCEPTION_ILLEGAL_INSTRUCTION:
+            
+            sprintf(z,"Illiegal Exception Interrupt,  e0 = %d, e1 = %d, a[0] = %d, a\n",e_context.e0,e_context.e1,e_context.a[0]);
+            write_console((unsigned) strlen(z), z);
+            
     }
     
     iret();
@@ -166,8 +164,10 @@ void TrapInterrupt(int input)
 {
     
     int trapNo = machine_context.reg[11];
-    unsigned va = machine_context.reg[12];
-    unsigned vaint = machine_context.reg[13];
+    unsigned arg1 = machine_context.reg[12];
+    unsigned arg2 = machine_context.reg[13];
+    unsigned arg3 = machine_context.reg[14];
+    unsigned arg4 = machine_context.reg[15];
     
     char s[50];
     sprintf(s,"Interrupt: Trap Interrupt! Trap Number = %d \n",trapNo);
@@ -178,18 +178,71 @@ void TrapInterrupt(int input)
     switch(trapNo)
     {
         case TRAP_EXIT:
+            //TODO: destroy the calling process
             Exit();
+            halt();
             break;
         case TRAP_WRITE_CONSOLE:
-            //            WriteConsole((char *)machine_context.reg[12], (int)machine_context.reg[13]);
+            sprintf(s,"TRAP_WRITE_CONSOLE in progress...\n");
+            write_console((unsigned) strlen(s), s);
             WriteConsole((char *)_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12]), (int)machine_context.reg[13]);
+            break;
+        case TRAP_CREATE_PERSISTENT_OBJECT:
+            sprintf(s,"TRAP_CREATE_PERSISTENT_OBJECT in progress...\n");
+            write_console((unsigned) strlen(s), s);
+            machine_context.reg[12] = CreatePersistentObject((char*)_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12]));
             
+            if (machine_context.reg[12] == OS_OK)
+            {
+                machine_context.reg[11] = 0;
+                logKeyNameHashTable();
+                logBitMap();
+            }
+            else
+            {
+                machine_context.reg[11] = -1;
+            }
+            break;
             
+        case TRAP_DELETE_PERSISTENT_OBJECT:
+            sprintf(s,"TRAP_DELETE_PERSISTENT_OBJECT in progress...\n");
+            write_console((unsigned) strlen(s), s);
+            
+            machine_context.reg[12] = DeletePersistentObject((char*)_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12]));
+            if (machine_context.reg[12] == OS_OK)
+            {
+                machine_context.reg[11] = 0;
+                logKeyNameHashTable();
+                logBitMap();
+            }
+            else
+            {
+                machine_context.reg[11] = -1;
+            }
+            break;
+        case TRAP_GET_PERSISTENT_OBJECT_SIZE:
+            sprintf(s,"TRAP_GET_PERSISTENT_OBJECT_SIZE in progress...\n");
+            write_console((unsigned) strlen(s), s);
+            
+            machine_context.reg[11] = GetPersistentObjectSize((char*)_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12]));
+            if (machine_context.reg[11] >= OS_OK)
+            {
+                machine_context.reg[12] = OS_OK;
+                logKeyNameHashTable();
+                logBitMap();
+            }
+            else
+            {
+                machine_context.reg[12] = OS_KN;
+            }
             break;
     }
     
+
+    
     iret();
 }
+
 
 unsigned _TranslateVirtualAddressToPhysicalAddress(unsigned va)
 {
@@ -207,11 +260,13 @@ unsigned _TranslateVirtualAddressToPhysicalAddress(unsigned va)
     virtualAddress.composite.interior_level = (virtualAddress.composite.interior_level >> 12);
     virtualAddress.composite.offset = (va & 0x00000fff);
     
+
     pte *mappedRootPage = (pte*)map_physical_page(activeRootPagePhysAddre);
     pte *pteFirstLevel = malloc(sizeof(*pteFirstLevel));
     memcpy((void*)pteFirstLevel, (void*)((void*)mappedRootPage+virtualAddress.composite.root_level*sizeof(pte)), sizeof(pte));
     pteFirstLevel->pte_ &= 0xfffff000;
     
+
     pte *mappedL1Page = (pte*)map_physical_page(pteFirstLevel->pte_);
     pte *pteSecondLevel = malloc(sizeof(*pteSecondLevel));
     memcpy((void*)pteSecondLevel, (void*)((void*)mappedL1Page+virtualAddress.composite.interior_level*sizeof(pte)), sizeof(pte));
@@ -268,110 +323,26 @@ int _AddOneStackPage(unsigned va)
         mappedInteriorStackPage[virtualAddress.composite.interior_level].pte_ = interiorStackPTE.pte_;
         
     }
+    else
+    {
+        // Allocate new actual stack page
+        int memBlockForActualStack = SearchForAvailableBit(Memory);
+        SetBits(memBlockForActualStack, Memory);
+        unsigned stackAddrActual = (unsigned) translateBitPositionToPageNumberInMemory(memBlockForActualStack);
+        
+        // prepare PTE to be put in the interior level
+        pte interiorStackPTE;
+        interiorStackPTE.pte_ = stackAddrActual & (int)(0xfffff000);
+        interiorStackPTE.pte_ |= (0x00000013);
+        
+        // map the current interior page
+        unsigned cuurentMappedStack = mappedRootPage[virtualAddress.composite.root_level].pte_ & 0xfffff000;
+        pte* mappedInteriorStackPage = map_physical_page((void*)cuurentMappedStack);
+        
+        mappedInteriorStackPage[virtualAddress.composite.interior_level] = interiorStackPTE;
+        
+        
+    }
     
     return 0;
 }
-
-//int _AddOneStackPage()
-//{
-//
-//    char s[50];
-//    sprintf(s,"Adding one stack page...\n");
-//    write_console((unsigned) strlen(s), s);
-//
-//
-//    //Actual Stack Page
-//    int memBlockForActualStack = SearchForAvailableBit(Memory);
-//    SetBits(memBlockForActualStack, Memory);
-//    unsigned stackAddrActual = (unsigned) translateBitPositionToPageNumberInMemory(memBlockForActualStack);
-//
-//    // 6. populate PTEs for the 2nd level pages with control bits
-//    pte stackPTE;
-//    stackPTE.pte_ = (int)stackAddrActual & (int)(0xfffff000);
-//    stackPTE.pte_ |= (0x00000015); // read, write, valid, execute
-//
-//    unsigned rootPage = currentPCB->rootPagePhysAddress;
-//
-//    pte* mappedRootPage = (pte*) map_physical_page((void*)rootPage);
-//
-//    pte stackL2Page;
-//    stackL2Page.pte_ = mappedRootPage[currentPCB->stackOffsetInRoot].pte_ & 0xfffff000;
-//    pte *mappedL2StackPage = (pte*) map_physical_page((void*)stackL2Page.pte_);
-//
-//    int i = currentPCB->stackOffsetInL2 ;
-//
-//
-//    // outer loop for the root entries
-//    for (int j = currentPCB->stackOffsetInRoot; j > currentPCB->dataOffsetInRoot;j--)
-//    {
-//
-//
-//        // inner loop for interior pages
-//        for ( ; i >= 0;i--)
-//        {
-//            pte newPTE = mappedL2StackPage[i];
-//
-//
-//
-//            if (newPTE.pte_ == 0)
-//            {
-//                mappedL2StackPage[i].pte_ = stackPTE.pte_;
-//                // TODO: if i == 1024, then map a new page starting from the root page
-//
-//                char s[50];
-//                sprintf(s,"Adding the %dth stack page...\n",i);
-//                write_console((unsigned) strlen(s), s);
-//
-//
-//                return 0;
-//            }
-//        }
-//
-//        // interior page is not usable, move on the the upper entry in root
-//        if (mappedRootPage[j-1].pte_ == 0)
-//        {
-//            // Alocate new interior page table for the stack
-//            int memBlockForStack = SearchForAvailableBit(Memory);
-//            SetBits(memBlockForStack, Memory);
-//            unsigned stackAddr = (unsigned) translateBitPositionToPageNumberInMemory(memBlockForStack);
-//
-//            pte rootStackPTE;
-//            rootStackPTE.pte_ = stackAddr;
-//            rootStackPTE.pte_ |= (0x00000015); // read, write, valid, execute
-//            mappedRootPage[j-1].pte_ = rootStackPTE.pte_;
-//
-//            mappedL2StackPage = (pte*) map_physical_page((void*)stackAddr);
-//            memset((void*)mappedL2StackPage, 0, 4096);
-//
-//        }
-//        else
-//        {
-//            stackL2Page.pte_ = mappedRootPage[j-1].pte_ & 0xfffff000;
-//            mappedL2StackPage = (pte*) map_physical_page((void*)stackL2Page.pte_);
-//
-//        }
-//
-//
-//
-//
-//
-//        i = 1023 ;
-//
-////        pte *stackMappedPage = (pte*)map_physical_page((void*) stackAddr);
-////        memset(stackMappedPage, 0, 4096);
-////        stackMappedPage[j] = stackPTE2;
-//
-//
-//
-//        
-//        
-//    }
-//    
-//    return -1;
-//
-//    
-//}
-
-
-
-

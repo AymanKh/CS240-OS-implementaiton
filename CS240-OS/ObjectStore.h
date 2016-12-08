@@ -35,6 +35,7 @@ int NumOfPersistentObjects();
 char * GetPersistentObjectKey(int i);
 void _UnMapFromPTBR(void *address, int noOfBlock);
 
+void logKeyNameHashTable();
 
 
 

@@ -43,6 +43,7 @@ typedef struct PCB {
     unsigned codeOffsetInL2;
     unsigned dataOffsetInL2;
     unsigned stack_segment_start;
+    unsigned code_segment_start;
     
     char		name[80];	// Process name
     int	L1_pagetable[MEM_L1TABLE_SIZE]; // Statically allocated page table

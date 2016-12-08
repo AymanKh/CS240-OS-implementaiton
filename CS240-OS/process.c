@@ -216,6 +216,7 @@ void runProcess(void * mapAddr)
     runningPCB->dataOffsetInL2 = vAddrDataSegment.composite.interior_level;
     runningPCB->stackOffsetInL2 = vAddrStackSegment.composite.interior_level;
     runningPCB->stack_segment_start = stack_segment_start;
+    runningPCB->code_segment_start = code_segment_start;
     
     
     currentPCB = runningPCB;

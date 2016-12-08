@@ -6,32 +6,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "interrupts.c"
-            timestampString = "502759849.42528"
+            timestampString = "502837387.125567"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "136"
-            endingLineNumber = "136"
-            landmarkName = "ExceptionInterrupt()"
-            landmarkType = "9">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "interrupts.c"
-            timestampString = "502759849.42528"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "224"
-            endingLineNumber = "224"
-            landmarkName = "_AddOneStackPage()"
+            startingLineNumber = "172"
+            endingLineNumber = "172"
+            landmarkName = "TrapInterrupt()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
@@ -42,28 +26,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "interrupts.c"
-            timestampString = "502759888.543773"
+            timestampString = "502837387.125567"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "132"
-            endingLineNumber = "132"
-            landmarkName = "ExceptionInterrupt()"
+            startingLineNumber = "94"
+            endingLineNumber = "94"
+            landmarkName = "DiskInterrupt()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "interrupts.c"
-            timestampString = "502759890.175949"
+            filePath = "process.c"
+            timestampString = "502837025.337676"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "131"
-            endingLineNumber = "131"
-            landmarkName = "ExceptionInterrupt()"
+            startingLineNumber = "219"
+            endingLineNumber = "219"
+            landmarkName = "runProcess()"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
