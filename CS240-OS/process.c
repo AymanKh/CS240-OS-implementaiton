@@ -8,12 +8,17 @@
 
 #include "process.h"
 
-static PCB	pcbs[PROCESS_MAX_PROCS];
+static PCB	*pcbs[PROCESS_MAX_PROCS];
 PCB		*currentPCB;
 
-static Queue	freepcbs;
-static Queue	runQueue;
-static Queue	waitQueue;
+//static Queue	readyQueue;
+//static Queue	BlockedQueue;
+//static Queue    freeQueue;
+
+PCB * readyQueue = NULL;
+PCB * runQueue = NULL;
+PCB * blockQueue = NULL;
+
 
 int CreateProcess(char * executable)
 {
@@ -53,8 +58,8 @@ int CreateProcess(char * executable)
     {
         return -1;
     }
-
-
+    
+    
     
     // TODO: hard coded for now, replace (1<<20) with a page in memory
     
@@ -77,9 +82,9 @@ int CreateProcess(char * executable)
 
 void runProcess(void * mapAddr)
 {
-
-
-//    unsigned hardCoded = (unsigned)(1<<20);
+    
+    
+    //    unsigned hardCoded = (unsigned)(1<<20);
     header * vaddr = (header *)map_physical_page((void * )mapAddr);
     
     
@@ -163,7 +168,7 @@ void runProcess(void * mapAddr)
     pte stackPTE;
     stackPTE.pte_ = (int)stackAddrActual & (int)(0xfffff000);
     stackPTE.pte_ |= (0x00000015); // read, write, valid, execute
-
+    
     
     
     // Map the 2nd level pages for code, stack, and segments
@@ -217,27 +222,125 @@ void runProcess(void * mapAddr)
     runningPCB->stackOffsetInL2 = vAddrStackSegment.composite.interior_level;
     runningPCB->stack_segment_start = stack_segment_start;
     runningPCB->code_segment_start = code_segment_start;
+    runningPCB->PCBcontext = malloc(sizeof(*runningPCB->PCBcontext));
+    runningPCB->PCBcontext->pc = code_segment_start;
+    runningPCB->PCBcontext->sp = stack_segment_start;
+    runningPCB->data_segment_size = data_segment_size;
+    runningPCB->data_segment_start = data_segment_start;
     
     
     currentPCB = runningPCB;
     
-
+//    for (int i = 0; i < PROCESS_MAX_PROCS; i++)
+//    {
+//        if (pcbs[i] == NULL)
+//        {
+//            pcbs[i] = runningPCB;
+//            pcbs[i]->inuse = 1;
+//            pcbs[i]->PID = i;
+//            
+//        }
+//    }
+//    
+//    LL_APPEND(readyQueue, runningPCB);
     
 }
 
+int processSchedule()
+{
+    if (currentPCB == NULL)
+    {
+        return -1;
+    }
+    else
+    {
+//        currentPCB = readyQueue;
+        return 0;
+    }
+//    if (readyQueue == NULL)
+//    {
+//        return -1;
+//    }
+//    
+////    context *oldcontext = &machine_context;
+//    if (currentPCB != NULL)
+//    {
+//        currentPCB->PCBcontext = &machine_context;
+//    }
+//    
+//    PCB *tempPCB = readyQueue;
+//    currentPCB = tempPCB;
+//    
+//    // move the head of the queue
+//    readyQueue = readyQueue->next;
+//    
+//    if (readyQueue != NULL)
+//    {
+//        // append the current running PCB to the end of the queue
+//        LL_APPEND(readyQueue, currentPCB);
+//        // null the last element in the queue
+//        currentPCB->next = NULL;
+//    }
+//    else
+//    {
+//        LL_APPEND(readyQueue, currentPCB);
+//    }
+    
+//    machine_context.pc = readyQueue->PCBcontext.pc;
+//    machine_context.sp = readyQueue->PCBcontext.sp;
+    
+//    machine_context = *(currentPCB->PCBcontext);
+//    set_ptbr((void*)currentPCB->ptbr);
+//    machine_context.pc = currentPCB->PCBcontext->pc;
+//    machine_context.sp = currentPCB->PCBcontext->sp;
+    
+    
+    
+    
+//    return 0;
+    
+    
+}
+
+void DestoryCurrentPCB()
+{
+    // Kill the porcess that called Exit()
+    
+//    int count;
+//    PCB *tempPCB3;
+//    LL_COUNT(readyQueue, tempPCB3, count);
+//    
+//    if (count == 1)
+//    {
+//        pcbs[readyQueue->PID] = NULL;
+//        readyQueue = NULL;
+//        return;
+//    }
+//  
+//    PCB *tempPCB = readyQueue;
+//    PCB *tempPCB2 = tempPCB;
+//    
+//    
+//    while (tempPCB->next != NULL)
+//    {
+//        tempPCB2 = tempPCB;
+//        tempPCB = tempPCB->next;
+//    }
+//    
+//    pcbs[tempPCB->PID] = NULL;
+//    tempPCB2->next = NULL;
+    currentPCB = NULL;
+    
+}
 
 void ProcessModuleInit()
 {
-//    QueueInit(&freepcbs);
-//        QueueInit(&runQueue);
-    //    QueueInit(&waitQueue);
     
-    //    for (int i = 0; i < PROCESS_MAX_PROCS; i++) {
-    //        pcbs[i].flags = PROCESS_STATUS_FREE;
-    //        QueueLinkInit(&(pcbs[i].l), (void *)&pcbs[i]);
-    //        QueueInsertFirst(&freepcbs, &(pcbs[i].l));
-    //    }
-    //    currentPCB = NULL;
+    for (int i = 0; i < PROCESS_MAX_PROCS;i++)
+    {
+        pcbs[i] = NULL;
+    }
+    
 }
 
 void Exit()
@@ -246,7 +349,7 @@ void Exit()
     sprintf(b,"a process called Exit()!\n");
     write_console((unsigned) strlen(b),b);
     
-    halt();
+//    halt();
     
 }
 

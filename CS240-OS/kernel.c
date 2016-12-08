@@ -12,8 +12,8 @@
 
 void kernel_start()
 {
-    set_debug_mode(DEBUG_ALL);
-//    reset_debug_mode();
+//    set_debug_mode(DEBUG_ALL);
+    reset_debug_mode();
     start_console();
     initialize_memory(); // Keep track of available pages in main memory
     start_disk();
@@ -40,11 +40,21 @@ void kernel_start()
     set_ivec(I_TRAP, TrapInterruptPointer);
     set_ivec(I_EXCEPT, ExceptionInterruptPointer);
     
+    // read logs
     initilizeBitMap("DiskBitMapLog");
     initilizeKeyNameHashTable("HashTableKeyNameLog");
     
+    // Process initlization module
+//    ProcessModuleInit();
     
-    CreateProcess("compute.b");
+    
+    
+//    CreateProcess("file0.b");
+    CreateProcess("shutdown.b");
+
+//    CreateProcess("compute.b");
+
+    
 //    CreateProcess("file0.b");
 
     

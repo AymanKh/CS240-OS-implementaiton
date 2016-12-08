@@ -10,7 +10,7 @@
 #define process_h
 
 #include <stdio.h>
-#include "Queue.h"
+//#include "Queue.h"
 #include "hardware_interface.h"
 #include "defines.h"
 #include "utlist.h"
@@ -19,6 +19,10 @@
 #define MEM_L1TABLE_SIZE 1024
 #define PROCESS_MAX_PROCS 10
 
+#define	PROCESS_STATUS_FREE	0x1
+#define	PROCESS_STATUS_RUNNABLE	0x2
+#define	PROCESS_STATUS_WAITING	0x4
+#define	PROCESS_STATUS_STARTING	0x8
 
 void ProcessModuleInit();
 int CreateProcess(char * executable);
@@ -27,6 +31,9 @@ int DestoryProcess(int pid);
 int FreezeProcess(int pid, int ticks);
 int ResumeProcess(int pid);
 int GetMyPid();
+int processSchedule();
+void DestoryCurrentPCB();
+
 
 void runProcess(void * addr);
 
@@ -35,7 +42,7 @@ typedef struct PCB {
 //    uint32	*sysStackPtr;	// Current system stack pointer.  MUST BE 2ND!
 //    uint32	sysStackArea;	// System stack area for this process
     /* uint32 * userStackPtr;	// user stack pointer */
-//    unsigned int	flags;
+    unsigned int	flags;
     unsigned codeOffsetInRoot;
     unsigned stackOffsetInRoot;
     unsigned dataOffsetInRoot;
@@ -44,14 +51,24 @@ typedef struct PCB {
     unsigned dataOffsetInL2;
     unsigned stack_segment_start;
     unsigned code_segment_start;
+    unsigned data_segment_size;
+    unsigned data_segment_start;
+    
+    
+    int inuse;
+    int PID;
     
     char		name[80];	// Process name
     int	L1_pagetable[MEM_L1TABLE_SIZE]; // Statically allocated page table
     int npages;
     unsigned ptbr;
     unsigned rootPagePhysAddress;
+    struct PCB *next;
+    context *PCBcontext;
     
-    Link		*l;		// Used for keeping PCB in queues
+    
+    
+//    Link		*l;		// Used for keeping PCB in queues
 } PCB;
 
 extern PCB	*currentPCB;

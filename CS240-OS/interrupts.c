@@ -31,15 +31,26 @@ void ClockInterrupt(int input)
         jiffies++;
     }
     
-    char x[30];
+    char x[100];
     sprintf(x,"jiffies = %d \n",jiffies);
+    
+    unsigned testsp = machine_context.sp;
+    unsigned testpc = machine_context.pc;
+    sprintf(x,"testsp = %x, testpc = %x\n",testsp,testpc);
 //    write_console((unsigned)strlen(x), x);
     
-//    set_ptbr((void*)currentPCB->ptbr);
-//    machine_context.pc = currentPCB->code_segment_start;
-//    machine_context.sp = currentPCB->stack_segment_start;
-    iret();
-//    halt();
+    if (processSchedule() == OS_OK)
+    {
+        iret();
+    }
+    else
+    {
+        halt();
+    }
+    
+
+    
+
 }
 
 // Console Interrupt
@@ -114,7 +125,7 @@ void DiskInterrupt(int tid)
         (test->func)();
     }
     
-    iret();
+//    iret();
     
 }
 
@@ -131,15 +142,24 @@ void ExceptionInterrupt(int input)
     
     switch (input) {
         case EXCEPTION_BAD_ADDRESS:
-            /*
-             1. use currentPCB to allocate a new stack page
-             2. iret()
-             */
-            //            _AddOneStackPage();
+
             va = e_context.a[0];
-        
-                // The user process is trying to grow the stack
+            
+            unsigned diff = (unsigned)currentPCB->stack_segment_start - va;
+            
+            // The user process is trying to grow the stack
+            if ((unsigned) diff < 4096)
+            {
                 _AddOneStackPage(va);
+                currentPCB->stack_segment_start -= 4096;
+            }
+            else
+            {
+                sprintf(z,"The process is accessing a bad address, terminating...\n");
+                write_console((unsigned) strlen(z), z);
+                DestoryCurrentPCB();
+            }
+            
             break;
         case EXCEPTION_ILLEGAL_INSTRUCTION:
             
@@ -148,8 +168,14 @@ void ExceptionInterrupt(int input)
             
     }
     
-    iret();
-    
+    if (currentPCB != NULL)
+    {
+        iret();
+    }
+    else
+    {
+        shutdown_machine();
+    }
 }
 
 void MachineCheckInterrupt(int input)
@@ -169,7 +195,7 @@ void TrapInterrupt(int input)
     unsigned arg3 = machine_context.reg[14];
     unsigned arg4 = machine_context.reg[15];
     
-    char s[50];
+    char s[100];
     sprintf(s,"Interrupt: Trap Interrupt! Trap Number = %d \n",trapNo);
     write_console((unsigned) strlen(s), s);
     char t[50];
@@ -180,14 +206,39 @@ void TrapInterrupt(int input)
         case TRAP_EXIT:
             //TODO: destroy the calling process
             Exit();
+            
+            // get the tail of the ready queue and remove it
+            void *testAPCB = currentPCB;
+            DestoryCurrentPCB();
+            
+            
             halt();
             break;
+            
         case TRAP_WRITE_CONSOLE:
+            
             sprintf(s,"TRAP_WRITE_CONSOLE in progress...\n");
             write_console((unsigned) strlen(s), s);
-            WriteConsole((char *)_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12]), (int)machine_context.reg[13]);
-            break;
+            unsigned va = machine_context.reg[12];
+            int diff = (currentPCB->data_segment_start+currentPCB->data_segment_size) - va;
+            int diff2 = va - (currentPCB->data_segment_start+currentPCB->data_segment_size);
+            
+            if (va > (currentPCB->data_segment_start+currentPCB->data_segment_size) || va < (currentPCB->data_segment_start))
+            {
+                sprintf(s,"This is not the process's terrirory, destroying process...\n");
+                write_console((unsigned) strlen(s), s);
+                DestoryCurrentPCB();
+                
+            }
+            else
+            {
+                WriteConsole((char *)_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12]), (int)machine_context.reg[13]);
+            }
+            
+                        break;
+            
         case TRAP_CREATE_PERSISTENT_OBJECT:
+            
             sprintf(s,"TRAP_CREATE_PERSISTENT_OBJECT in progress...\n");
             write_console((unsigned) strlen(s), s);
             machine_context.reg[12] = CreatePersistentObject((char*)_TranslateVirtualAddressToPhysicalAddress(machine_context.reg[12]));
@@ -205,6 +256,7 @@ void TrapInterrupt(int input)
             break;
             
         case TRAP_DELETE_PERSISTENT_OBJECT:
+            
             sprintf(s,"TRAP_DELETE_PERSISTENT_OBJECT in progress...\n");
             write_console((unsigned) strlen(s), s);
             
@@ -220,7 +272,9 @@ void TrapInterrupt(int input)
                 machine_context.reg[11] = -1;
             }
             break;
+            
         case TRAP_GET_PERSISTENT_OBJECT_SIZE:
+            
             sprintf(s,"TRAP_GET_PERSISTENT_OBJECT_SIZE in progress...\n");
             write_console((unsigned) strlen(s), s);
             
@@ -236,11 +290,22 @@ void TrapInterrupt(int input)
                 machine_context.reg[12] = OS_KN;
             }
             break;
+            
+        case TRAP_SHUTDOWN:
+            
+            shutdown_machine();
+            break;
     }
     
-
+    if (currentPCB != NULL)
+    {
+        iret();
+    }
+    else
+    {
+        shutdown_machine();
+    }
     
-    iret();
 }
 
 

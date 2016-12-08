@@ -3,7 +3,34 @@
    version = "1.0">
    <ContextStates>
       <ContextState
+         contextName = "DestoryCurrentPCB:process.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "readyQueue">
+            </PersistentString>
+            <PersistentString
+               value = "currentPCB">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "DiskInterrupt:interrupts.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "hashTableTid">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "GetPersistentObjectSize:ObjectStore.c">
+      </ContextState>
+      <ContextState
+         contextName = "readDiskWrapper:ObjectStore.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "hashTableTid">
+            </PersistentString>
+         </PersistentStrings>
       </ContextState>
       <ContextState
          contextName = "MapPersistentObject:ObjectStore.c">
@@ -12,6 +39,37 @@
                value = "hashTableAddresses">
             </PersistentString>
          </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "CreateProcess:process.c">
+      </ContextState>
+      <ContextState
+         contextName = "UnMapPersistentObject:ObjectStore.c">
+      </ContextState>
+      <ContextState
+         contextName = "initilizeKeyNameHashTable:ObjectStore.c">
+      </ContextState>
+      <ContextState
+         contextName = "ExceptionInterrupt:interrupts.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "currentPCB">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "processSchedule:process.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "currentPCB">
+            </PersistentString>
+            <PersistentString
+               value = "readyQueue">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "CreatePersistentObject:ObjectStore.c">
       </ContextState>
       <ContextState
          contextName = "_AddOneStackPage:interrupts.c">
@@ -28,31 +86,6 @@
                value = "hashTableTid">
             </PersistentString>
          </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "CreateProcess:process.c">
-      </ContextState>
-      <ContextState
-         contextName = "DiskInterrupt:interrupts.c">
-         <PersistentStrings>
-            <PersistentString
-               value = "hashTableTid">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "readDiskWrapper:ObjectStore.c">
-         <PersistentStrings>
-            <PersistentString
-               value = "hashTableTid">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "UnMapPersistentObject:ObjectStore.c">
-      </ContextState>
-      <ContextState
-         contextName = "initilizeKeyNameHashTable:ObjectStore.c">
       </ContextState>
    </ContextStates>
 </VariablesViewState>
